@@ -496,7 +496,39 @@ Set arc:
 
 ### Set Notes Journal
 - Keep a "crowd read" log after each night: what worked, what cleared the floor
-- Experiment: 90s hip hop → swing transition as a potential signature move`,
+- Experiment: 90s hip hop → swing transition as a potential signature move
+
+### Electro Swing Sunday — First Night Runsheet
+
+**Pre-show (2 hours before doors)**
+- Load and test full set on Pioneer controller
+- Confirm USB backup drives working
+- Sound check with X32 — coordinate on bass levels
+- Lighting: confirm full tilt settings available and tested
+- Photographer briefed and on site
+
+**Night arc — First Sunday**
+- **8:00pm** — Doors. Ambient electro swing: Waldeck, Caro Emerald. Keep it approachable. People are discovering the genre.
+- **8:30pm** — First recognizable moment: open with a Caravan Palace track everyone can feel even if they don't know it
+- **9:00pm** — Build. Introduce Parov Stelar. More energy, more swing.
+- **9:30pm** — Peak energy. Full electro. Tape Five, Caravan Palace back-to-back.
+- **10:30pm** — Cool-down arc. Slower, jazzier. Let the room breathe.
+- **11:00pm+** — Lights full tilt. Second wind. Read the room.
+
+**If the room is thin (low turnout)**
+- Do not adjust the genre — the sound is the brand
+- Tighten the set arc: skip slow build, go to energy sooner
+- Host energy becomes even more important — a small crowd needs more warmth, not less
+- Photographer still shoots — make 20 people look like 60 with tight framing
+
+**Post-show**
+- Log the crowd read in Notes (tag: setlist)
+- Note: what opened the floor, what cleared it, what the turning point was
+- Send photographer selects to Google Drive within 48 hours
+
+### Setlist Log
+Use the Notes tab (tag: setlist) to log each night's set after the show.
+Include: date, venue energy (1–5), peak moment, what cleared the floor, songs to repeat.`,
 
   planning: `## Event Planning
 
@@ -597,5 +629,77 @@ The lighting follows the same arc as the music and hosting energy. Whoever is ru
 
 ### Known Issues / To Investigate
 - Document any feedback sources by position
-- Note any hum or ground loop issues with Pioneer → X32 connection`,
+- Note any hum or ground loop issues with Pioneer → X32 connection
+
+### Troubleshooting Runbook
+
+**Karafun crashes mid-show**
+1. Do not panic — host keeps energy up while you recover
+2. Force-quit and relaunch Karafun on Mac Mini
+3. If relaunch fails, restart Mac Mini (30–45 sec)
+4. While rebooting: DJ plays a track to cover the gap, host keeps the room
+5. Queue will be lost — ask patrons to re-add songs via QR card
+
+**Microphone feedback loop**
+1. Mute the offending mic channel on X32 immediately
+2. Move the mic away from the wedge monitor
+3. Lower the gain on that channel, then slowly bring it back up
+4. If persistent: apply a narrow cut at ~2kHz or ~8kHz (common feedback frequencies)
+5. Check wedge position — monitors aimed directly at an open mic = feedback
+
+**Mic goes dead mid-performance**
+1. Swap with a backup mic if available
+2. Check battery first — most dead mic issues are batteries
+3. Check receiver connection and antenna position
+4. If the receiver is showing signal but no audio: power cycle the receiver
+
+**Bluetooth drops (backing track cuts out)**
+1. Check BT receiver — reconnect to Mac Mini
+2. If reconnection fails: plug the 3.5mm aux cable directly from Mac Mini headphone jack to Pioneer input (keep this cable physically accessible at all times)
+3. This is why the wired fallback should always be pre-staged
+
+**X32 scene corruption / wrong settings**
+1. Recall the saved KARAOKE BASE scene
+2. If no scene saved: reduce all fader levels to safe position, rebuild from scratch
+3. HPF on all mics at 120Hz, compression 2:1 slow attack, presence boost 3–5kHz
+
+**Patron refuses to leave the mic / disrupts the queue**
+1. Host addresses it first — keep it light and public ("alright superstar, let's give someone else a turn")
+2. If the patron escalates: notify bar staff, do not physically intervene
+3. Bar staff have authority to remove — host's job is to keep the rest of the room energized through it`,
+
+  contacts: `## Contacts & Resources
+
+### Key People
+- [ ] Venue owner / manager — add name + phone
+- [ ] Sound tech — add name + phone
+- [ ] DJ (resident) — add name + contact
+- [ ] Karaoke host — add name + phone
+- [ ] Photographer — add name + contact
+
+### Equipment Support
+- Karafun: karafun.com/support
+- Behringer X32: behringer.com/support
+- [ ] Local AV repair contact — add
+
+### Venue
+- Address: 710 N Clark St, Chicago IL 60654
+- Phone: (872) 266-2386
+- Website: stardustchi.com
+- Instagram: @stardustchicago
+
+### Important Links
+- [ ] Karafun host login URL
+- [ ] Google Drive — assets, photos, docs
+- [ ] Canva workspace
+- [ ] Instagram: instagram.com/stardustchicago
+- [ ] Facebook Events page
+- [ ] TikTok account
+- [ ] Do312 venue page
+
+### Emergency
+- Medical: call 911, then notify venue owner
+- Equipment failure mid-show: see Sound & Tech → Troubleshooting
+- Karafun crash mid-show: see Karaoke Notes
+- Patron disturbance: notify bar staff immediately, do not engage alone`,
 }

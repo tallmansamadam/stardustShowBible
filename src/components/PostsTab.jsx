@@ -66,11 +66,13 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
   const [creating, setCreating] = useState(false)
   const [filterPlatform, setFilterPlatform] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [filterDate, setFilterDate] = useState(null)
   const [confirming, setConfirming] = useState(null)
 
   const filtered = (posts || []).filter(p =>
     (filterPlatform === 'all' || p.platform === filterPlatform) &&
-    (filterStatus   === 'all' || p.status   === filterStatus)
+    (filterStatus   === 'all' || p.status   === filterStatus) &&
+    (!filterDate || p.date === filterDate)
   )
 
   return (
@@ -93,6 +95,8 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
           </button>
         )}
       </div>
+
+      <WeekView posts={posts} filterDate={filterDate} onFilterDate={setFilterDate} />
 
       {/* Filter row */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 22, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -230,6 +234,61 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
   )
 }
 
+// ── Week View ──────────────────────────────────────────────────────────────────
+function WeekView({ posts, filterDate, onFilterDate }) {
+  const today = new Date()
+  const dayOfWeek = today.getDay()
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    return d
+  })
+
+  const todayStr = today.toISOString().slice(0, 10)
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 8 }}>This Week</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 }}>
+        {days.map(day => {
+          const dateStr = day.toISOString().slice(0, 10)
+          const dayPosts = (posts || []).filter(p => p.date === dateStr)
+          const isToday = dateStr === todayStr
+          const isSelected = filterDate === dateStr
+          return (
+            <button
+              key={dateStr}
+              onClick={() => onFilterDate(isSelected ? null : dateStr)}
+              style={{
+                background: isSelected ? 'rgba(212,168,74,0.12)' : 'rgba(255,255,255,0.02)',
+                border: isToday ? `1px solid rgba(212,168,74,0.35)` : `1px solid rgba(255,255,255,0.06)`,
+                borderRadius: 8, padding: '8px 4px', textAlign: 'center', cursor: 'pointer',
+              }}
+            >
+              <div style={{ fontSize: 8, color: isToday ? colors.gold : colors.textFaint, fontFamily: fonts.mono, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 3 }}>
+                {day.toLocaleDateString('en-US', { weekday: 'short' })}
+              </div>
+              <div style={{ fontSize: 15, color: isToday ? colors.gold : isSelected ? colors.gold : colors.textMuted, fontFamily: fonts.mono, fontWeight: isToday ? '600' : '400' }}>
+                {day.getDate()}
+              </div>
+              {dayPosts.length > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 4, flexWrap: 'wrap' }}>
+                  {dayPosts.slice(0, 4).map((p, i) => (
+                    <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold }} />
+                  ))}
+                </div>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Post form ──────────────────────────────────────────────────────────────────
 function PostForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial || {
@@ -258,7 +317,7 @@ function PostForm({ initial, onSave, onCancel }) {
   return (
     <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(212,168,74,0.18)', borderRadius: 12, padding: 20, marginBottom: 14 }}>
       {/* Row 1: Platform / Type / Status / Date */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
+      <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
         <div>
           <label style={labelSt}>Platform</label>
           <select value={form.platform} onChange={e => setPlatform(e.target.value)} style={inputSt}>

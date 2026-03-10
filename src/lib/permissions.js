@@ -9,8 +9,8 @@ export const ROLES = {
 
 // Which tabs each role can EDIT (all roles can VIEW everything)
 export const EDIT_PERMISSIONS = {
-  editor:  ['notes', 'posts', 'showbible', 'karaoke', 'djsets', 'planning', 'sound'],
-  manager: ['posts', 'showbible', 'planning', 'sound'],
+  editor:  ['notes', 'posts', 'showbible', 'karaoke', 'djsets', 'planning', 'sound', 'nightof', 'contacts'],
+  manager: ['posts', 'showbible', 'planning', 'sound', 'nightof', 'contacts'],
 }
 
 export function canEdit(role, section) {
@@ -22,8 +22,10 @@ export const TABS = [
   { id: 'notes',     label: '📋 Notes',       section: 'notes'     },
   { id: 'posts',     label: '📱 Social Posts', section: 'posts'     },
   { id: 'showbible', label: '✦ Show Bible',    section: 'showbible' },
+  { id: 'nightof',   label: '✦ Night Of',      section: 'nightof'   },
   { id: 'karaoke',   label: '🎤 Karaoke',      section: 'karaoke'   },
-  { id: 'djsets',    label: '🎧 DJ Sets',      section: 'djsets'    },
+  { id: 'djsets',    label: '🎧 DJ Sets',       section: 'djsets'    },
   { id: 'planning',  label: '📅 Planning',     section: 'planning'  },
   { id: 'sound',     label: '🔊 Sound & Tech', section: 'sound'     },
+  { id: 'contacts',  label: '📞 Contacts',     section: 'contacts'  },
 ]

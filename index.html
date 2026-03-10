@@ -127,6 +127,18 @@
       ::-webkit-scrollbar-thumb:hover { background: rgba(212,168,74,0.25); }
 
       select option { background: #14112a; color: #f0e8d0; }
+
+      /* ── Mobile ─────────────────────────────────────────── */
+      @media (max-width: 640px) {
+        .grid-2, .grid-3, .grid-4 {
+          grid-template-columns: 1fr !important;
+        }
+        .hide-mobile { display: none !important; }
+        .stack-mobile {
+          flex-direction: column !important;
+          align-items: stretch !important;
+        }
+      }
     </style>
   </head>
   <body>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { colors, fonts } from './styles'
 
-const TAGS = ['general', 'electro-swing', 'karaoke', 'dj', 'marketing', 'sound']
+const TAGS = ['general', 'electro-swing', 'karaoke', 'dj', 'marketing', 'sound', 'log', 'setlist']
 const TAG_COLORS = {
   general: 'rgba(255,255,255,0.3)',
   'electro-swing': '#d4a84a',
@@ -9,12 +9,20 @@ const TAG_COLORS = {
   dj: '#6090e0',
   marketing: '#a060d0',
   sound: '#4ab8e0',
+  log: '#5acb8a',
+  setlist: '#e0a84a',
 }
 
 export default function NotesTab({ notes, canEdit, onAdd, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
   const [confirming, setConfirming] = useState(null)
+  const [tagFilter, setTagFilter] = useState('all')
+
+  const sorted = [
+    ...(notes || []).filter(n => n.pinned && (tagFilter === 'all' || n.tag === tagFilter)),
+    ...(notes || []).filter(n => !n.pinned && (tagFilter === 'all' || n.tag === tagFilter)),
+  ]
 
   return (
     <div>
@@ -37,6 +45,19 @@ export default function NotesTab({ notes, canEdit, onAdd, onUpdate, onDelete }) 
         )}
       </div>
 
+      {/* Tag filter */}
+      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 16 }}>
+        {['all', ...TAGS].map(t => (
+          <button key={t} onClick={() => setTagFilter(t)} style={{
+            fontSize: 10, padding: '3px 10px', borderRadius: 20,
+            border: tagFilter === t ? 'none' : `1px solid rgba(255,255,255,0.1)`,
+            background: tagFilter === t ? (TAG_COLORS[t] || colors.gold) : 'transparent',
+            color: tagFilter === t ? (t === 'general' ? '#fff' : '#09080f') : (TAG_COLORS[t] || colors.textMuted),
+            fontFamily: fonts.mono, letterSpacing: '0.5px',
+          }}>{t}</button>
+        ))}
+      </div>
+
       {creating && (
         <NoteForm onSave={async n => { await onAdd(n); setCreating(false) }} onCancel={() => setCreating(false)} />
       )}
@@ -49,7 +70,7 @@ export default function NotesTab({ notes, canEdit, onAdd, onUpdate, onDelete }) 
       )}
 
       <div style={{ display: 'grid', gap: 10 }}>
-        {(notes || []).map(note => {
+        {sorted.map(note => {
           const tagColor = TAG_COLORS[note.tag] || 'rgba(255,255,255,0.3)'
           return (
             <div
@@ -93,6 +114,13 @@ export default function NotesTab({ notes, canEdit, onAdd, onUpdate, onDelete }) 
                             </>
                           ) : (
                             <>
+                              <button
+                                onClick={() => onUpdate({ ...note, pinned: !note.pinned })}
+                                style={{ background: 'none', border: `1px solid rgba(255,255,255,0.1)`, color: note.pinned ? colors.gold : colors.textFaint, borderRadius: 4, padding: '3px 8px', cursor: 'pointer', fontSize: 12 }}
+                                title={note.pinned ? 'Unpin' : 'Pin'}
+                              >
+                                {note.pinned ? '★' : '☆'}
+                              </button>
                               <button onClick={() => setEditing(note.id)} style={btnGhost}>Edit</button>
                               <button onClick={() => setConfirming(note.id)} style={{ ...btnGhost, color: colors.textFaint }}>✕</button>
                             </>
@@ -123,7 +151,7 @@ export default function NotesTab({ notes, canEdit, onAdd, onUpdate, onDelete }) 
 
 function NoteForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial || {
-    title: '', content: '', tag: 'general', date: new Date().toISOString().slice(0, 10),
+    title: '', content: '', tag: 'general', date: new Date().toISOString().slice(0, 10), pinned: false,
   })
   const [saving, setSaving] = useState(false)
 
@@ -136,7 +164,7 @@ function NoteForm({ initial, onSave, onCancel }) {
 
   return (
     <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(212,168,74,0.18)', borderRadius: 12, padding: 20, marginBottom: 14 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+      <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
         <div>
           <label style={labelSt}>Title</label>
           <input placeholder="Note title" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} style={inputSt} />

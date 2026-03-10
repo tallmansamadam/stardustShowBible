@@ -6,6 +6,7 @@ import LoginPage from './components/LoginPage'
 import NotesTab from './components/NotesTab'
 import PostsTab from './components/PostsTab'
 import MarkdownEditor from './components/MarkdownEditor'
+import NightOf from './components/NightOf'
 import { colors, fonts } from './components/styles'
 
 const ROLE_MAP = {
@@ -90,7 +91,7 @@ export default function App() {
     const { data } = await supabase.from('content').select('*')
     const map = {}
     if (data) data.forEach(row => { map[row.key] = row.value })
-    const sections = ['showbible', 'karaoke', 'djsets', 'planning', 'sound']
+    const sections = ['showbible', 'karaoke', 'djsets', 'planning', 'sound', 'contacts']
     sections.forEach(k => { if (!map[k]) map[k] = DEFAULT_CONTENT[k] })
     setContent(map)
   }
@@ -178,6 +179,9 @@ export default function App() {
           </div>
         </div>
 
+        {/* Search */}
+        <SearchBar notes={notes} posts={posts} onTabSwitch={setActiveTab} />
+
         {/* ── Tab bar ── */}
         <div
           className="tabs-row"
@@ -216,10 +220,12 @@ export default function App() {
             {activeTab === 0 && <NotesTab notes={notes} canEdit={canEdit(role, 'notes')} onAdd={addNote} onUpdate={updateNote} onDelete={deleteNote} />}
             {activeTab === 1 && <PostsTab posts={posts} canEdit={canEdit(role, 'posts')} onAdd={addPost} onUpdate={updatePost} onDelete={deletePost} />}
             {activeTab === 2 && <MarkdownEditor title="Show Bible" value={content.showbible} canEdit={canEdit(role, 'showbible')} saving={saving} onSave={v => saveContent('showbible', v)} />}
-            {activeTab === 3 && <MarkdownEditor title="Karaoke Notes" value={content.karaoke} canEdit={canEdit(role, 'karaoke')} saving={saving} onSave={v => saveContent('karaoke', v)} />}
-            {activeTab === 4 && <MarkdownEditor title="DJ Set Notes" value={content.djsets} canEdit={canEdit(role, 'djsets')} saving={saving} onSave={v => saveContent('djsets', v)} />}
-            {activeTab === 5 && <MarkdownEditor title="Event Planning" value={content.planning} canEdit={canEdit(role, 'planning')} saving={saving} onSave={v => saveContent('planning', v)} />}
-            {activeTab === 6 && <MarkdownEditor title="Sound & Tech" value={content.sound} canEdit={canEdit(role, 'sound')} saving={saving} onSave={v => saveContent('sound', v)} />}
+            {activeTab === 3 && <NightOf />}
+            {activeTab === 4 && <MarkdownEditor title="Karaoke Notes" value={content.karaoke} canEdit={canEdit(role, 'karaoke')} saving={saving} onSave={v => saveContent('karaoke', v)} />}
+            {activeTab === 5 && <MarkdownEditor title="DJ Set Notes" value={content.djsets} canEdit={canEdit(role, 'djsets')} saving={saving} onSave={v => saveContent('djsets', v)} />}
+            {activeTab === 6 && <MarkdownEditor title="Event Planning" value={content.planning} canEdit={canEdit(role, 'planning')} saving={saving} onSave={v => saveContent('planning', v)} />}
+            {activeTab === 7 && <MarkdownEditor title="Sound & Tech" value={content.sound} canEdit={canEdit(role, 'sound')} saving={saving} onSave={v => saveContent('sound', v)} />}
+            {activeTab === 8 && <MarkdownEditor title="Contacts & Resources" value={content.contacts} canEdit={canEdit(role, 'contacts')} saving={saving} onSave={v => saveContent('contacts', v)} />}
           </div>
         )}
       </div>
@@ -248,6 +254,76 @@ function Stars() {
           }} />
         )
       })}
+    </div>
+  )
+}
+
+function SearchBar({ notes, posts, onTabSwitch }) {
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+
+  const matchedNotes = q.length > 1
+    ? (notes || []).filter(n => n.title?.toLowerCase().includes(q) || n.content?.toLowerCase().includes(q))
+    : []
+  const matchedPosts = q.length > 1
+    ? (posts || []).filter(p => p.content?.toLowerCase().includes(q) || p.hashtags?.toLowerCase().includes(q))
+    : []
+
+  const hasResults = matchedNotes.length > 0 || matchedPosts.length > 0
+  const showResults = q.length > 1
+
+  return (
+    <div style={{ position: 'relative', marginBottom: 16 }}>
+      <input
+        type="text"
+        placeholder="Search notes and posts…"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        style={{
+          width: '100%', background: 'rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
+          padding: '9px 14px 9px 36px', color: colors.text,
+          fontSize: 13, fontFamily: fonts.body,
+        }}
+      />
+      <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 13, opacity: 0.3, pointerEvents: 'none' }}>⌕</span>
+      {query && (
+        <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: colors.textFaint, fontSize: 14, padding: '0 4px' }}>×</button>
+      )}
+
+      {showResults && (
+        <div className="glass" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, borderRadius: 10, zIndex: 50, maxHeight: 340, overflowY: 'auto', padding: '8px 0' }}>
+          {!hasResults && (
+            <div style={{ padding: '16px 18px', fontSize: 13, color: colors.textFaint, fontFamily: fonts.mono }}>No results</div>
+          )}
+          {matchedNotes.length > 0 && (
+            <>
+              <div style={{ padding: '6px 18px 4px', fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>Notes</div>
+              {matchedNotes.map(n => (
+                <div key={n.id} onClick={() => { onTabSwitch(0); setQuery('') }} style={{ padding: '10px 18px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <div style={{ fontSize: 13, color: colors.text, fontFamily: fonts.body, marginBottom: 2 }}>{n.title}</div>
+                  <div style={{ fontSize: 11, color: colors.textFaint, fontFamily: fonts.mono }}>{n.tag}</div>
+                </div>
+              ))}
+            </>
+          )}
+          {matchedPosts.length > 0 && (
+            <>
+              <div style={{ padding: '6px 18px 4px', fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>Posts</div>
+              {matchedPosts.map(p => (
+                <div key={p.id} onClick={() => { onTabSwitch(1); setQuery('') }} style={{ padding: '10px 18px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <div style={{ fontSize: 13, color: colors.text, fontFamily: fonts.body, marginBottom: 2 }}>{p.content?.slice(0, 80)}…</div>
+                  <div style={{ fontSize: 11, color: colors.textFaint, fontFamily: fonts.mono }}>{p.platform} · {p.status}</div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

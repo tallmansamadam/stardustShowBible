@@ -33,6 +33,9 @@ alter table posts add column if not exists post_type text default '';
 alter table posts add column if not exists hashtags text default '';
 alter table posts add column if not exists media_notes text default '';
 
+-- Migration: add pinned column to notes
+alter table notes add column if not exists pinned boolean default false;
+
 -- Long-form content (strategy, karaoke, djsets, planning, sound)
 create table if not exists content (
   id uuid default gen_random_uuid() primary key,
