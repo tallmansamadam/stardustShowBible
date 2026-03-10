@@ -223,8 +223,8 @@ Use a mix of tiers on every post. Don't use all of them — pick 10–15 that fi
 **Chicago / Location**
 #chicago #chitown #chicagonightlife #rivernorth #rivernorthchicago #chicagobar #chicagoevents #latenightchicago #312 #visitchicago #chicagolife
 
-**Karaoke**
-#karaoke #karaokenight #karaokestar #karaokebar #karaokelife #singingstar #livekaraoke
+**Karaoke / Disco**
+#karaoke #karaokenight #karaokestar #karaokebar #karaokelife #singingstar #livekaraoke #discokaraoke #funkykaraoke #disconight #funknight #disco #funk #discofunk #70snight #70smusic #discovibes #getfunky #danceparty
 
 **DJ / Nightlife**
 #djnight #djset #dancefloor #nightlife #nightout #datenight #girlsnight #chicagonightlife #cocktailbar #livemusic
@@ -272,15 +272,65 @@ Use a mix of tiers on every post. Don't use all of them — pick 10–15 that fi
 - **4x wireless mics** — check all batteries and receiver connections before every show
 - Signal chain: Mac Mini → Bluetooth receiver → Pioneer 2-channel DJ controller → Behringer X32 Compact (house)
 
+### Disco & Funk Direction
+
+The goal is to gradually steer the karaoke identity toward **disco and funk** — not as a hard restriction, but as the soul of the room. Patrons can still pick anything, but the environment, the host, the marketing, and the seeded queue should all be pulling in one direction.
+
+**Why we can't just limit the catalog**
+Karafun does not support restricting song selection by genre or era for patrons using the remote queue. Blocking songs creates friction and kills the self-serve experience. The approach instead is to make disco/funk the obvious, exciting choice — not the only one.
+
+**Strategies to nudge the room without locking the catalog**
+
+- **Seed the early queue** — Before doors open, load 6–8 disco/funk songs into the queue from a "house" account. They set the temperature before the first patron even picks. A cold room full of trap songs kills the vibe before it starts.
+- **Song suggestion cards on every table** — Alongside the QR code card, place a second card listing 15–20 curated disco/funk bangers with a line like "Not sure what to sing? Start here." People who don't know what to pick almost always choose from a list.
+- **Market it as Disco Karaoke** — If the flyer, the Instagram post, and the event title all say "Disco & Funk Karaoke Night," the crowd self-selects. You get people who want to sing disco. The catalog doesn't matter if the audience is already primed.
+- **Host energy as signal** — The host should go noticeably bigger on disco/funk performances. Not dismissive of other songs, but visibly more excited when someone picks a funk banger. The crowd reads that signal and learns what this room celebrates.
+- **Themed drink specials** — A "Boogie Wonderland" or "Le Freak" cocktail on the board ties the drink menu to the vibe and makes disco/funk the ambient story of the night.
+- **Artist-specific nights** — "Earth Wind & Fire Night," "Prince Night," "Donna Summer Night" — market a specific artist as the inspiration. Patrons can still pick anything, but the framing brings in people ready to hear that sound.
+- **Social media feedback loop** — Post the disco/funk performances on social. Don't post the off-genre stuff. Over time the algorithm and the audience both learn: this is a disco bar.
+
+**Seed song list — Disco & Funk karaoke bangers that work in a room**
+- September — Earth, Wind & Fire
+- Boogie Wonderland — Earth, Wind & Fire
+- Let's Groove — Earth, Wind & Fire
+- Shining Star — Earth, Wind & Fire
+- Le Freak — Chic
+- Good Times — Chic
+- I Will Survive — Gloria Gaynor
+- Hot Stuff — Donna Summer
+- Last Dance — Donna Summer
+- Bad Girls — Donna Summer
+- Stayin' Alive — Bee Gees
+- Night Fever — Bee Gees
+- More Than a Woman — Bee Gees
+- Brick House — Commodores
+- Celebration — Kool & the Gang
+- Get Down on It — Kool & the Gang
+- Play That Funky Music — Wild Cherry
+- Super Freak — Rick James
+- Word Up — Cameo
+- Kiss — Prince
+- 1999 — Prince
+- Raspberry Beret — Prince
+- Superstition — Stevie Wonder
+- Sir Duke — Stevie Wonder
+- Higher Ground — Stevie Wonder
+- YMCA — Village People
+- Dancing Queen — ABBA
+- Uptown Funk — Bruno Mars / Mark Ronson
+- Treasure — Bruno Mars
+- Get Lucky — Daft Punk ft. Pharrell
+
 ### Hosting Flow
 - You don't control the queue order — keep energy up between every singer
 - Dead air = death. Have a hype line ready at all times
 - Be extra encouraging with nervous first-timers
 - Celebrate every performance without exception
+- Go noticeably bigger on disco/funk performances — this is the signal that trains the room
 
 ### Night Arc (Typical)
-- **Early (8–9:30pm)**: Lower stakes, familiar songs, warm the room
-- **Peak (9:30–11pm)**: High energy, move the queue fast
+- **Early (8–9:30pm)**: Lower stakes, seeded disco/funk queue sets the tone, warm the room
+- **Peak (9:30–11pm)**: High energy, move the queue fast, crowd should be fully in it by now
 - **Late (11pm+)**: Emotional bangers, duets, closing energy`,
 
   djsets: `## DJ Set Notes
