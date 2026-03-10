@@ -108,6 +108,12 @@ Warm · Theatrical · A little cheeky · Never corporate · Never cringe
 - If something goes wrong, own it with humor, fix it fast
 - The customer's worst moment is your best opportunity
 
+### Stewardship of the Space
+We're all responsible for the room — not just our corner of it. That means:
+- Pick up trash on sight, on stage or off, whether or not it's yours
+- If the bathroom needs attention, say something immediately — don't assume someone else noticed
+- Leave the space better than you found it, every single night
+
 ---
 
 ---
