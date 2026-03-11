@@ -81,7 +81,27 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
   const [confirming, setConfirming]     = useState(null)
   const [weekOffset, setWeekOffset]     = useState(0)
   const [focusDate, setFocusDate]       = useState(null)
+  const [draggingId, setDraggingId]     = useState(null)
+  const [dragOverDate, setDragOverDate] = useState(null)
   const dateRefs = useRef({})
+
+  const handleDragStart = (e, postId) => {
+    setDraggingId(postId)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', postId)
+  }
+  const handleDragEnd = () => { setDraggingId(null); setDragOverDate(null) }
+  const handleDragOver = (e, dateKey) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverDate(dateKey) }
+  const handleDragLeave = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverDate(null) }
+  const handleDrop = (e, dateKey) => {
+    e.preventDefault()
+    const postId = e.dataTransfer.getData('text/plain')
+    const post = (posts || []).find(p => p.id === postId)
+    const newDate = dateKey === '__none' ? '' : dateKey
+    if (post && post.date !== newDate) onUpdate({ ...post, date: newDate })
+    setDraggingId(null)
+    setDragOverDate(null)
+  }
 
   const today = new Date().toISOString().slice(0, 10)
   const weekDays = getWeekDays(weekOffset)
@@ -233,24 +253,37 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
           const isFocused = focusDate === dateStr
           const isToday = dateStr === today
           const isPast = dateStr < today
+          const isDragTarget = dragOverDate === dateStr
           const dateObj = new Date(dateStr + 'T12:00:00')
           const label = isToday ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
           const dayPosts = byDate[dateStr] || []
 
           return (
-            <div key={dateStr} ref={el => dateRefs.current[dateStr] = el}>
+            <div
+              key={dateStr}
+              ref={el => dateRefs.current[dateStr] = el}
+              onDragOver={e => handleDragOver(e, dateStr)}
+              onDragLeave={handleDragLeave}
+              onDrop={e => handleDrop(e, dateStr)}
+              style={{
+                borderRadius: 10, padding: isDragTarget ? '6px 10px' : '0',
+                border: isDragTarget ? `1px dashed rgba(212,168,74,0.5)` : '1px solid transparent',
+                background: isDragTarget ? 'rgba(212,168,74,0.04)' : 'transparent',
+                transition: 'all 0.12s ease',
+              }}
+            >
               {/* Date header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: dayPosts.length ? 8 : 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: dayPosts.length || isDragTarget ? 8 : 0 }}>
                 <div style={{
                   fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', whiteSpace: 'nowrap',
-                  color: isToday ? colors.gold : isFocused ? colors.gold : isPast ? 'rgba(255,255,255,0.18)' : colors.textMuted,
+                  color: isToday ? colors.gold : isDragTarget ? colors.gold : isFocused ? colors.gold : isPast ? 'rgba(255,255,255,0.18)' : colors.textMuted,
                   fontWeight: isToday ? '600' : '400',
                   paddingBottom: 2,
                   borderBottom: isToday ? `1px solid ${colors.gold}44` : '1px solid transparent',
                 }}>
                   {label}
                 </div>
-                <div style={{ flex: 1, height: 1, background: isFocused ? 'rgba(212,168,74,0.15)' : isPast ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)' }} />
+                <div style={{ flex: 1, height: 1, background: isDragTarget ? 'rgba(212,168,74,0.25)' : isFocused ? 'rgba(212,168,74,0.15)' : isPast ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)' }} />
                 {dayPosts.length > 0 && (
                   <div style={{ display: 'flex', gap: 3 }}>
                     {dayPosts.map((p, i) => (
@@ -258,31 +291,35 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
                     ))}
                   </div>
                 )}
-                {dayPosts.length === 0 && (
+                {dayPosts.length === 0 && !isDragTarget && (
                   <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.1)', fontFamily: fonts.mono, letterSpacing: '1px' }}>—</span>
+                )}
+                {isDragTarget && dayPosts.length === 0 && (
+                  <span style={{ fontSize: 9, color: 'rgba(212,168,74,0.4)', fontFamily: fonts.mono, letterSpacing: '1px' }}>drop here</span>
                 )}
               </div>
 
               {/* Posts for this day */}
-              {dayPosts.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {dayPosts.map(post => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      canEdit={canEdit}
-                      editing={editing === post.id}
-                      confirming={confirming === post.id}
-                      onEdit={() => setEditing(post.id)}
-                      onCancelEdit={() => setEditing(null)}
-                      onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
-                      onConfirmDelete={() => setConfirming(post.id)}
-                      onCancelDelete={() => setConfirming(null)}
-                      onDelete={() => { onDelete(post.id); setConfirming(null) }}
-                    />
-                  ))}
-                </div>
-              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {dayPosts.map(post => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    canEdit={canEdit}
+                    editing={editing === post.id}
+                    confirming={confirming === post.id}
+                    isDragging={draggingId === post.id}
+                    onEdit={() => setEditing(post.id)}
+                    onCancelEdit={() => setEditing(null)}
+                    onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
+                    onConfirmDelete={() => setConfirming(post.id)}
+                    onCancelDelete={() => setConfirming(null)}
+                    onDelete={() => { onDelete(post.id); setConfirming(null) }}
+                    onDragStart={e => handleDragStart(e, post.id)}
+                    onDragEnd={handleDragEnd}
+                  />
+                ))}
+              </div>
             </div>
           )
         })}
@@ -298,11 +335,19 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
               const dateObj = new Date(dateStr + 'T12:00:00')
               const label = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
               const isPast = dateStr < today
+              const isDragTarget = dragOverDate === dateStr
               return (
-                <div key={dateStr} ref={el => dateRefs.current[dateStr] = el}>
+                <div
+                  key={dateStr}
+                  ref={el => dateRefs.current[dateStr] = el}
+                  onDragOver={e => handleDragOver(e, dateStr)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={e => handleDrop(e, dateStr)}
+                  style={{ borderRadius: 10, padding: isDragTarget ? '6px 10px' : '0', border: isDragTarget ? '1px dashed rgba(212,168,74,0.5)' : '1px solid transparent', background: isDragTarget ? 'rgba(212,168,74,0.04)' : 'transparent', transition: 'all 0.12s ease' }}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', color: isPast ? 'rgba(255,255,255,0.18)' : colors.textMuted, whiteSpace: 'nowrap' }}>{label}</div>
-                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+                    <div style={{ fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', color: isDragTarget ? colors.gold : isPast ? 'rgba(255,255,255,0.18)' : colors.textMuted, whiteSpace: 'nowrap' }}>{label}</div>
+                    <div style={{ flex: 1, height: 1, background: isDragTarget ? 'rgba(212,168,74,0.25)' : 'rgba(255,255,255,0.05)' }} />
                     <div style={{ display: 'flex', gap: 3 }}>
                       {byDate[dateStr].map((p, i) => (
                         <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold, opacity: 0.7 }} />
@@ -317,12 +362,15 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
                         canEdit={canEdit}
                         editing={editing === post.id}
                         confirming={confirming === post.id}
+                        isDragging={draggingId === post.id}
                         onEdit={() => setEditing(post.id)}
                         onCancelEdit={() => setEditing(null)}
                         onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
                         onConfirmDelete={() => setConfirming(post.id)}
                         onCancelDelete={() => setConfirming(null)}
                         onDelete={() => { onDelete(post.id); setConfirming(null) }}
+                        onDragStart={e => handleDragStart(e, post.id)}
+                        onDragEnd={handleDragEnd}
                       />
                     ))}
                   </div>
@@ -333,26 +381,35 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
         )}
 
         {/* Unscheduled */}
-        {byDate['__none']?.length > 0 && (
-          <div>
+        {(byDate['__none']?.length > 0 || dragOverDate === '__none') && (
+          <div
+            onDragOver={e => handleDragOver(e, '__none')}
+            onDragLeave={handleDragLeave}
+            onDrop={e => handleDrop(e, '__none')}
+            style={{ borderRadius: 10, padding: dragOverDate === '__none' ? '6px 10px' : '0', border: dragOverDate === '__none' ? '1px dashed rgba(155,143,212,0.4)' : '1px solid transparent', background: dragOverDate === '__none' ? 'rgba(155,143,212,0.04)' : 'transparent', transition: 'all 0.12s ease' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-              <div style={{ fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>Unscheduled</div>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+              <div style={{ fontSize: 9, color: dragOverDate === '__none' ? colors.purple : colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>Unscheduled</div>
+              <div style={{ flex: 1, height: 1, background: dragOverDate === '__none' ? 'rgba(155,143,212,0.2)' : 'rgba(255,255,255,0.05)' }} />
+              {dragOverDate === '__none' && <span style={{ fontSize: 9, color: 'rgba(155,143,212,0.5)', fontFamily: fonts.mono, letterSpacing: '1px' }}>drop to unschedule</span>}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {byDate['__none'].map(post => (
+              {(byDate['__none'] || []).map(post => (
                 <PostCard
                   key={post.id}
                   post={post}
                   canEdit={canEdit}
                   editing={editing === post.id}
                   confirming={confirming === post.id}
+                  isDragging={draggingId === post.id}
                   onEdit={() => setEditing(post.id)}
                   onCancelEdit={() => setEditing(null)}
                   onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
                   onConfirmDelete={() => setConfirming(post.id)}
                   onCancelDelete={() => setConfirming(null)}
                   onDelete={() => { onDelete(post.id); setConfirming(null) }}
+                  onDragStart={e => handleDragStart(e, post.id)}
+                  onDragEnd={handleDragEnd}
                 />
               ))}
             </div>
@@ -371,7 +428,7 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
 }
 
 // ── Post Card ─────────────────────────────────────────────────────────────────
-function PostCard({ post, canEdit, editing, confirming, onEdit, onCancelEdit, onSave, onConfirmDelete, onCancelDelete, onDelete }) {
+function PostCard({ post, canEdit, editing, confirming, isDragging, onEdit, onCancelEdit, onSave, onConfirmDelete, onCancelDelete, onDelete, onDragStart, onDragEnd }) {
   const cfg = PLATFORMS[post.platform] || {}
 
   if (editing) {
@@ -388,12 +445,18 @@ function PostCard({ post, canEdit, editing, confirming, onEdit, onCancelEdit, on
   return (
     <div
       className="card"
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       style={{
         borderRadius: 10, overflow: 'hidden',
         background: 'rgba(255,255,255,0.018)',
         border: `1px solid rgba(255,255,255,0.06)`,
         borderLeft: `3px solid ${cfg.color || colors.border}`,
         display: 'flex', alignItems: 'stretch',
+        opacity: isDragging ? 0.35 : 1,
+        cursor: 'grab',
+        transition: 'opacity 0.15s ease',
       }}
     >
       {/* Platform color sidebar */}
