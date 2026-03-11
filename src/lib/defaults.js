@@ -651,9 +651,26 @@ A curated film screening night in the bar. Not a sports bar play — a *vibe* pl
 - **Chicago**: The Blues Brothers, Ferris Bueller's Day Off, High Fidelity
 - **Curveball**: foreign films, anime, silent films with a live DJ score (big swing)
 
+### Film Licensing
+Bars screening films publicly need a public performance license — this is separate from owning the DVD or having a streaming subscription.
+
+**MPLC (Motion Picture Licensing Corporation)** is the right choice for Stardust:
+- Covers Universal, Sony, Disney, Warner, Lionsgate, and hundreds of indie studios — the bulk of what you'd actually want to screen
+- Annual flat fee, typically **$200–$500/year** for a venue of this size (based on capacity)
+- Unlimited screenings, any night, no per-film fees
+- Apply at mplc.com or call them — they'll quote based on occupancy
+
+**Swank Motion Pictures** (swankmp.net) covers a different catalog (Paramount, MGM, some Disney) and can fill gaps if MPLC doesn't cover a specific title. Most bars start with MPLC only.
+
+**What the license covers:** unlimited public screenings at the venue, background or featured
+**What it doesn't cover:** charging admission specifically for the film; streaming services (Netflix, HBO — their ToS prohibit public screening regardless of license)
+
+Since you're not charging for the film and it's bar entertainment, MPLC is the clean, correct fit. Combined cost of MPLC + Swank if needed is usually still under $1,000/year.
+
 ### To Do
 - [ ] Confirm AV setup supports full-room playback from a single source
-- [ ] Check licensing — bars need a public performance license to screen films (MPLC or Swank)
+- [ ] Get MPLC quote at mplc.com (expect $200–$500/year for this venue size)
+- [ ] If a title isn't covered by MPLC, check Swank at swankmp.net
 - [ ] Build a programming calendar 4–6 weeks out
 - [ ] Design a simple weekly social graphic: film title, time, any themed drink
 
