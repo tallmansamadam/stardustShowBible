@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { colors, fonts } from './styles'
 
 // ── Platform config ────────────────────────────────────────────────────────────
@@ -60,20 +60,63 @@ function countHashtags(str) {
   return (str?.match(/#\S+/g) || []).length
 }
 
+function getWeekDays(weekOffset) {
+  const today = new Date()
+  const dow = today.getDay()
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + weekOffset * 7)
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    return d
+  })
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) {
-  const [editing, setEditing] = useState(null)
-  const [creating, setCreating] = useState(false)
+  const [editing, setEditing]           = useState(null)
+  const [creating, setCreating]         = useState(false)
   const [filterPlatform, setFilterPlatform] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
-  const [filterDate, setFilterDate] = useState(null)
-  const [confirming, setConfirming] = useState(null)
+  const [confirming, setConfirming]     = useState(null)
+  const [weekOffset, setWeekOffset]     = useState(0)
+  const [focusDate, setFocusDate]       = useState(null)
+  const dateRefs = useRef({})
+
+  const today = new Date().toISOString().slice(0, 10)
+  const weekDays = getWeekDays(weekOffset)
+  const weekDayStrs = weekDays.map(d => d.toISOString().slice(0, 10))
 
   const filtered = (posts || []).filter(p =>
     (filterPlatform === 'all' || p.platform === filterPlatform) &&
-    (filterStatus   === 'all' || p.status   === filterStatus) &&
-    (!filterDate || p.date === filterDate)
+    (filterStatus   === 'all' || p.status   === filterStatus)
   )
+
+  // Group by date
+  const byDate = {}
+  filtered.forEach(p => {
+    const key = p.date || '__none'
+    if (!byDate[key]) byDate[key] = []
+    byDate[key].push(p)
+  })
+
+  // Dated groups sorted chronologically
+  const datedKeys = Object.keys(byDate)
+    .filter(k => k !== '__none')
+    .sort()
+
+  const handleDayClick = (dateStr) => {
+    setFocusDate(dateStr)
+    // If that date has posts, scroll to it
+    setTimeout(() => {
+      dateRefs.current[dateStr]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
+
+  const weekLabel = weekOffset === 0 ? 'This Week'
+    : weekOffset === 1 ? 'Next Week'
+    : weekOffset === -1 ? 'Last Week'
+    : `${weekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${weekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
 
   return (
     <div>
@@ -96,11 +139,54 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
         )}
       </div>
 
-      <WeekView posts={posts} filterDate={filterDate} onFilterDate={setFilterDate} />
+      {/* ── Week strip ── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>{weekLabel}</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button onClick={() => { setWeekOffset(w => w - 1); setFocusDate(null) }} style={navBtn}>‹</button>
+            {weekOffset !== 0 && <button onClick={() => { setWeekOffset(0); setFocusDate(null) }} style={{ ...navBtn, fontSize: 9, letterSpacing: '0.5px' }}>today</button>}
+            <button onClick={() => { setWeekOffset(w => w + 1); setFocusDate(null) }} style={navBtn}>›</button>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 }}>
+          {weekDays.map(day => {
+            const dateStr = day.toISOString().slice(0, 10)
+            const dayPosts = filtered.filter(p => p.date === dateStr)
+            const isToday = dateStr === today
+            const isFocused = focusDate === dateStr
+            return (
+              <button
+                key={dateStr}
+                onClick={() => handleDayClick(dateStr)}
+                style={{
+                  background: isFocused ? 'rgba(212,168,74,0.12)' : 'rgba(255,255,255,0.02)',
+                  border: isToday ? `1px solid rgba(212,168,74,0.35)` : isFocused ? `1px solid rgba(212,168,74,0.25)` : `1px solid rgba(255,255,255,0.06)`,
+                  borderRadius: 8, padding: '8px 4px', textAlign: 'center', cursor: 'pointer',
+                }}
+              >
+                <div style={{ fontSize: 8, color: isToday ? colors.gold : colors.textFaint, fontFamily: fonts.mono, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 3 }}>
+                  {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                </div>
+                <div style={{ fontSize: 15, color: isToday || isFocused ? colors.gold : colors.textMuted, fontFamily: fonts.mono, fontWeight: isToday ? '600' : '400' }}>
+                  {day.getDate()}
+                </div>
+                {dayPosts.length > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 4, flexWrap: 'wrap' }}>
+                    {dayPosts.slice(0, 4).map((p, i) => (
+                      <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold }} />
+                    ))}
+                  </div>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
       {/* Filter row */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 22, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: 5 }}>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
           {['all', ...Object.keys(PLATFORMS)].map(p => {
             const active = filterPlatform === p
             const col = PLATFORMS[p]?.color
@@ -117,7 +203,7 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
           })}
         </div>
         <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.1)' }} />
-        <div style={{ display: 'flex', gap: 5 }}>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
           {['all', ...STATUSES].map(s => {
             const active = filterStatus === s
             const col = STATUS_COLORS[s]
@@ -139,160 +225,196 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
         <PostForm onSave={async p => { await onAdd(p); setCreating(false) }} onCancel={() => setCreating(false)} />
       )}
 
-      {/* Cards */}
-      <div style={{ display: 'grid', gap: 10 }}>
-        {filtered.map(post => {
-          const cfg = PLATFORMS[post.platform] || {}
-          return (
-            <div key={post.id} className="glass card" style={{ borderRadius: 12, overflow: 'hidden' }}>
-              {/* Platform bar */}
-              <div style={{ height: 2, background: `linear-gradient(to right, ${cfg.color || colors.border}99, transparent)` }} />
+      {/* ── Grouped date view ── */}
+      {filtered.length === 0 && !creating ? (
+        <div style={{ textAlign: 'center', padding: '70px 20px', color: colors.textFaint, fontFamily: fonts.mono, fontSize: 11, letterSpacing: '1px' }}>
+          <div style={{ fontSize: 32, marginBottom: 14, opacity: 0.2, fontFamily: fonts.display }}>✦</div>
+          No posts here yet
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {datedKeys.map(dateStr => {
+            const isFocused = focusDate === dateStr
+            const isToday = dateStr === today
+            const isPast = dateStr < today
+            const dateObj = new Date(dateStr + 'T12:00:00')
+            const label = isToday ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+            return (
+              <div key={dateStr} ref={el => dateRefs.current[dateStr] = el}>
+                {/* Date header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  <div style={{
+                    fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px',
+                    color: isToday ? colors.gold : isFocused ? colors.gold : isPast ? colors.textFaint : colors.textMuted,
+                    fontWeight: isToday ? '600' : '400',
+                    paddingBottom: 2,
+                    borderBottom: isToday ? `1px solid ${colors.gold}44` : isFocused ? `1px solid rgba(212,168,74,0.2)` : '1px solid transparent',
+                  }}>
+                    {label}
+                  </div>
+                  <div style={{ flex: 1, height: 1, background: isFocused ? 'rgba(212,168,74,0.15)' : 'rgba(255,255,255,0.05)' }} />
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {byDate[dateStr].map((p, i) => (
+                      <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold, opacity: 0.7 }} />
+                    ))}
+                  </div>
+                </div>
 
-              <div style={{ padding: '16px 20px' }}>
-                {editing === post.id ? (
-                  <PostForm
-                    initial={post}
+                {/* Posts for this date */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {byDate[dateStr].map(post => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      canEdit={canEdit}
+                      editing={editing === post.id}
+                      confirming={confirming === post.id}
+                      onEdit={() => setEditing(post.id)}
+                      onCancelEdit={() => setEditing(null)}
+                      onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
+                      onConfirmDelete={() => setConfirming(post.id)}
+                      onCancelDelete={() => setConfirming(null)}
+                      onDelete={() => { onDelete(post.id); setConfirming(null) }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Unscheduled */}
+          {byDate['__none']?.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', color: colors.textFaint }}>Unscheduled</div>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {byDate['__none'].map(post => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    canEdit={canEdit}
+                    editing={editing === post.id}
+                    confirming={confirming === post.id}
+                    onEdit={() => setEditing(post.id)}
+                    onCancelEdit={() => setEditing(null)}
                     onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
-                    onCancel={() => setEditing(null)}
+                    onConfirmDelete={() => setConfirming(post.id)}
+                    onCancelDelete={() => setConfirming(null)}
+                    onDelete={() => { onDelete(post.id); setConfirming(null) }}
                   />
-                ) : (
-                  <>
-                    {/* Meta */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 10, fontWeight: '600', color: cfg.color, background: cfg.color + '18', padding: '2px 10px', borderRadius: 20, fontFamily: fonts.mono, letterSpacing: '0.5px' }}>
-                          {post.platform}
-                        </span>
-                        {post.post_type && (
-                          <span style={{ fontSize: 10, color: colors.textMuted, background: 'rgba(255,255,255,0.05)', padding: '2px 9px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', fontFamily: fonts.mono }}>
-                            {post.post_type}
-                          </span>
-                        )}
-                        <span style={{ fontSize: 10, background: (STATUS_COLORS[post.status] || '#888') + '22', color: STATUS_COLORS[post.status] || '#888', padding: '2px 9px', borderRadius: 20, fontFamily: fonts.mono }}>
-                          {post.status}
-                        </span>
-                        {post.date && <span style={{ fontSize: 10, color: colors.textFaint, fontFamily: fonts.mono }}>{post.date}</span>}
-                      </div>
-
-                      {canEdit && (
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, marginLeft: 10 }}>
-                          {confirming === post.id ? (
-                            <>
-                              <span style={{ fontSize: 11, color: colors.red, fontFamily: fonts.mono }}>Delete?</span>
-                              <button onClick={() => { onDelete(post.id); setConfirming(null) }} style={btnDanger}>Yes</button>
-                              <button onClick={() => setConfirming(null)} style={btnGhost}>No</button>
-                            </>
-                          ) : (
-                            <>
-                              <button onClick={() => setEditing(post.id)} style={btnGhost}>Edit</button>
-                              <button onClick={() => setConfirming(post.id)} style={{ ...btnGhost, color: colors.textFaint }}>✕</button>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {post.content && (
-                      <p style={{ margin: '0 0 10px', fontSize: 13, color: colors.text, lineHeight: 1.75, whiteSpace: 'pre-wrap', fontFamily: fonts.body }}>
-                        {post.content}
-                      </p>
-                    )}
-
-                    {post.hashtags && (
-                      <p style={{ margin: '0 0 8px', fontSize: 12, color: '#6090e0', lineHeight: 1.6, fontFamily: fonts.mono }}>
-                        {post.hashtags}
-                      </p>
-                    )}
-
-                    {post.media_notes && (
-                      <div style={{ fontSize: 12, color: colors.textFaint, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10, marginTop: 6, fontFamily: fonts.body }}>
-                        <span style={{ marginRight: 7, opacity: 0.6 }}>📷</span>{post.media_notes}
-                      </div>
-                    )}
-
-                    {cfg.charLimit && post.content && (
-                      <div style={{ marginTop: 10, fontSize: 10, color: charColor(post.content.length, cfg.charLimit), fontFamily: fonts.mono, letterSpacing: '0.5px' }}>
-                        {post.content.length} / {cfg.charLimit}
-                        {cfg.hasHashtags && post.hashtags && ` · ${countHashtags(post.hashtags)} tags${cfg.hashtagLimit ? ` / ${cfg.hashtagLimit}` : ''}`}
-                      </div>
-                    )}
-                  </>
-                )}
+                ))}
               </div>
             </div>
-          )
-        })}
-
-        {filtered.length === 0 && !creating && (
-          <div style={{ textAlign: 'center', padding: '70px 20px', color: colors.textFaint, fontFamily: fonts.mono, fontSize: 11, letterSpacing: '1px' }}>
-            <div style={{ fontSize: 32, marginBottom: 14, opacity: 0.2, fontFamily: fonts.display }}>✦</div>
-            No posts here yet
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
-// ── Week View ──────────────────────────────────────────────────────────────────
-function WeekView({ posts, filterDate, onFilterDate }) {
-  const [weekOffset, setWeekOffset] = useState(0)
-  const today = new Date()
-  const dayOfWeek = today.getDay()
-  const monday = new Date(today)
-  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + weekOffset * 7)
+// ── Post Card ─────────────────────────────────────────────────────────────────
+function PostCard({ post, canEdit, editing, confirming, onEdit, onCancelEdit, onSave, onConfirmDelete, onCancelDelete, onDelete }) {
+  const cfg = PLATFORMS[post.platform] || {}
 
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday)
-    d.setDate(monday.getDate() + i)
-    return d
-  })
-
-  const todayStr = today.toISOString().slice(0, 10)
-  const weekLabel = weekOffset === 0 ? 'This Week' : weekOffset === 1 ? 'Next Week' : weekOffset === -1 ? 'Last Week' : `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${days[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-
-  return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <div style={{ fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>{weekLabel}</div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <button onClick={() => setWeekOffset(w => w - 1)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, color: colors.textFaint, padding: '2px 8px', fontSize: 11, fontFamily: fonts.mono }}>‹</button>
-          {weekOffset !== 0 && <button onClick={() => setWeekOffset(0)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, color: colors.textFaint, padding: '2px 8px', fontSize: 9, fontFamily: fonts.mono, letterSpacing: '0.5px' }}>today</button>}
-          <button onClick={() => setWeekOffset(w => w + 1)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, color: colors.textFaint, padding: '2px 8px', fontSize: 11, fontFamily: fonts.mono }}>›</button>
+  if (editing) {
+    return (
+      <div className="glass" style={{ borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ height: 2, background: `linear-gradient(to right, ${cfg.color || colors.border}99, transparent)` }} />
+        <div style={{ padding: '16px 20px' }}>
+          <PostForm initial={post} onSave={onSave} onCancel={onCancelEdit} />
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 }}>
-        {days.map(day => {
-          const dateStr = day.toISOString().slice(0, 10)
-          const dayPosts = (posts || []).filter(p => p.date === dateStr)
-          const isToday = dateStr === todayStr
-          const isSelected = filterDate === dateStr
-          return (
-            <button
-              key={dateStr}
-              onClick={() => onFilterDate(isSelected ? null : dateStr)}
-              style={{
-                background: isSelected ? 'rgba(212,168,74,0.12)' : 'rgba(255,255,255,0.02)',
-                border: isToday ? `1px solid rgba(212,168,74,0.35)` : `1px solid rgba(255,255,255,0.06)`,
-                borderRadius: 8, padding: '8px 4px', textAlign: 'center', cursor: 'pointer',
-              }}
-            >
-              <div style={{ fontSize: 8, color: isToday ? colors.gold : colors.textFaint, fontFamily: fonts.mono, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 3 }}>
-                {day.toLocaleDateString('en-US', { weekday: 'short' })}
-              </div>
-              <div style={{ fontSize: 15, color: isToday ? colors.gold : isSelected ? colors.gold : colors.textMuted, fontFamily: fonts.mono, fontWeight: isToday ? '600' : '400' }}>
-                {day.getDate()}
-              </div>
-              {dayPosts.length > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 4, flexWrap: 'wrap' }}>
-                  {dayPosts.slice(0, 4).map((p, i) => (
-                    <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold }} />
-                  ))}
-                </div>
+    )
+  }
+
+  return (
+    <div
+      className="card"
+      style={{
+        borderRadius: 10, overflow: 'hidden',
+        background: 'rgba(255,255,255,0.018)',
+        border: `1px solid rgba(255,255,255,0.06)`,
+        borderLeft: `3px solid ${cfg.color || colors.border}`,
+        display: 'flex', alignItems: 'stretch',
+      }}
+    >
+      {/* Platform color sidebar */}
+      <div style={{ width: 3, flexShrink: 0, background: cfg.color || colors.border, opacity: 0.6, borderRadius: '0 0 0 0' }} />
+
+      <div style={{ flex: 1, padding: '12px 16px' }}>
+        {/* Meta row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: post.content ? 8 : 0 }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{
+              fontSize: 10, fontWeight: '600', color: cfg.color,
+              background: (cfg.color || '#888') + '18',
+              padding: '2px 9px', borderRadius: 20, fontFamily: fonts.mono, letterSpacing: '0.5px',
+            }}>
+              {post.platform}
+            </span>
+            {post.post_type && (
+              <span style={{ fontSize: 10, color: colors.textMuted, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.07)', fontFamily: fonts.mono }}>
+                {post.post_type}
+              </span>
+            )}
+            <span style={{
+              fontSize: 10,
+              background: (STATUS_COLORS[post.status] || '#888') + '22',
+              color: STATUS_COLORS[post.status] || '#888',
+              padding: '2px 8px', borderRadius: 20, fontFamily: fonts.mono,
+            }}>
+              {post.status}
+            </span>
+          </div>
+
+          {canEdit && (
+            <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexShrink: 0, marginLeft: 8 }}>
+              {confirming ? (
+                <>
+                  <span style={{ fontSize: 10, color: colors.red, fontFamily: fonts.mono }}>Delete?</span>
+                  <button onClick={onDelete} style={btnDanger}>Yes</button>
+                  <button onClick={onCancelDelete} style={btnGhost}>No</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={onEdit} style={btnGhost}>Edit</button>
+                  <button onClick={onConfirmDelete} style={{ ...btnGhost, color: colors.textFaint }}>✕</button>
+                </>
               )}
-            </button>
-          )
-        })}
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        {post.content && (
+          <p style={{ margin: '0 0 6px', fontSize: 13, color: colors.text, lineHeight: 1.7, whiteSpace: 'pre-wrap', fontFamily: fonts.body }}>
+            {post.content}
+          </p>
+        )}
+
+        {/* Hashtags */}
+        {post.hashtags && (
+          <p style={{ margin: '0 0 6px', fontSize: 11, color: '#6090e0', lineHeight: 1.5, fontFamily: fonts.mono }}>
+            {post.hashtags}
+          </p>
+        )}
+
+        {/* Media notes */}
+        {post.media_notes && (
+          <div style={{ fontSize: 11, color: colors.textFaint, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 7, marginTop: 4, fontFamily: fonts.body }}>
+            <span style={{ marginRight: 6, opacity: 0.5 }}>📷</span>{post.media_notes}
+          </div>
+        )}
+
+        {/* Char count */}
+        {cfg.charLimit && post.content && (
+          <div style={{ marginTop: 6, fontSize: 9, color: charColor(post.content.length, cfg.charLimit), fontFamily: fonts.mono, letterSpacing: '0.5px' }}>
+            {post.content.length} / {cfg.charLimit}
+            {cfg.hasHashtags && post.hashtags && ` · ${countHashtags(post.hashtags)} tags${cfg.hashtagLimit ? ` / ${cfg.hashtagLimit}` : ''}`}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -324,8 +446,7 @@ function PostForm({ initial, onSave, onCancel }) {
   }
 
   return (
-    <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(212,168,74,0.18)', borderRadius: 12, padding: 20, marginBottom: 14 }}>
-      {/* Row 1: Platform / Type / Status / Date */}
+    <div>
       <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
         <div>
           <label style={labelSt}>Platform</label>
@@ -351,7 +472,6 @@ function PostForm({ initial, onSave, onCancel }) {
         </div>
       </div>
 
-      {/* Caption */}
       <div style={{ marginBottom: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
           <label style={labelSt}>{cfg.captionLabel || 'Caption'}</label>
@@ -368,7 +488,6 @@ function PostForm({ initial, onSave, onCancel }) {
         />
       </div>
 
-      {/* Hashtags */}
       {cfg.hasHashtags && (
         <div style={{ marginBottom: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -385,7 +504,6 @@ function PostForm({ initial, onSave, onCancel }) {
         </div>
       )}
 
-      {/* Media notes */}
       {cfg.hasMediaNotes && (
         <div style={{ marginBottom: 18 }}>
           <label style={labelSt}>Visual / Media Notes</label>
@@ -410,6 +528,11 @@ function PostForm({ initial, onSave, onCancel }) {
 }
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
+const navBtn = {
+  background: 'none', border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 4, color: colors.textFaint, padding: '2px 8px',
+  fontSize: 11, fontFamily: fonts.mono,
+}
 const labelSt = {
   display: 'block', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase',
   color: 'rgba(155,143,212,0.6)', marginBottom: 6, fontFamily: "'DM Mono', monospace",
