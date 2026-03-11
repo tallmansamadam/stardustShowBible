@@ -55,9 +55,11 @@ export default function App() {
     setNotes(data || [])
   }
   const addNote = async (note) => {
-    const { data } = await supabase.from('notes').insert([{ ...note, user_id: session.user.id }]).select()
-    if (data) setNotes(n => [data[0], ...n])
+    const { data, error } = await supabase.from('notes').insert([{ ...note, user_id: session.user.id }]).select()
+    if (error) { console.error('addNote error:', error); return { error } }
+    if (data?.[0]) setNotes(n => [data[0], ...n])
     flash('Note saved')
+    return { data }
   }
   const updateNote = async (note) => {
     await supabase.from('notes').update(note).eq('id', note.id)

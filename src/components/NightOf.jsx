@@ -61,6 +61,7 @@ export default function NightOf({ onAdd, session }) {
 
   const [saving, setSaving] = useState({ crowd: false, tech: false })
   const [saved,  setSaved]  = useState({ crowd: false, tech: false })
+  const [saveErr, setSaveErr] = useState({ crowd: null, tech: null })
 
   const toggle = (key) => {
     const next = { ...checked, [key]: !checked[key] }
@@ -78,8 +79,9 @@ export default function NightOf({ onAdd, session }) {
     const value = notes[field]?.trim()
     if (!value || !onAdd) return
     setSaving(s => ({ ...s, [field]: true }))
+    setSaveErr(s => ({ ...s, [field]: null }))
     const isCrowd = field === 'crowd'
-    await onAdd({
+    const result = await onAdd({
       title: `${isCrowd ? 'Crowd Read' : 'Tech Notes'} — ${today}`,
       content: value,
       tag: isCrowd ? 'log' : 'sound',
@@ -87,8 +89,12 @@ export default function NightOf({ onAdd, session }) {
       pinned: false,
     })
     setSaving(s => ({ ...s, [field]: false }))
-    setSaved(s => ({ ...s, [field]: true }))
-    setTimeout(() => setSaved(s => ({ ...s, [field]: false })), 2500)
+    if (result?.error) {
+      setSaveErr(s => ({ ...s, [field]: result.error.message || 'Save failed' }))
+    } else {
+      setSaved(s => ({ ...s, [field]: true }))
+      setTimeout(() => setSaved(s => ({ ...s, [field]: false })), 2500)
+    }
   }
 
   const reset = () => {
@@ -197,21 +203,26 @@ export default function NightOf({ onAdd, session }) {
                 <label style={{ fontSize: 10, color, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>
                   {label}
                 </label>
-                {notes[field]?.trim() && onAdd && (
-                  <button
-                    onClick={() => saveNote(field)}
-                    disabled={saving[field]}
-                    style={{
-                      background: saved[field] ? 'rgba(90,203,138,0.1)' : `${color}14`,
-                      border: `1px solid ${saved[field] ? 'rgba(90,203,138,0.3)' : color + '44'}`,
-                      color: saved[field] ? colors.green : color,
-                      borderRadius: 6, padding: '4px 12px',
-                      fontSize: 10, fontFamily: fonts.mono, letterSpacing: '0.5px',
-                    }}
-                  >
-                    {saved[field] ? '✓ Saved to Notes' : saving[field] ? 'Saving…' : '↑ Save to Notes'}
-                  </button>
-                )}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  {saveErr[field] && (
+                    <span style={{ fontSize: 10, color: colors.red, fontFamily: fonts.mono }}>{saveErr[field]}</span>
+                  )}
+                  {notes[field]?.trim() && onAdd && (
+                    <button
+                      onClick={() => saveNote(field)}
+                      disabled={saving[field]}
+                      style={{
+                        background: saved[field] ? 'rgba(90,203,138,0.1)' : saveErr[field] ? 'rgba(224,96,96,0.1)' : `${color}14`,
+                        border: `1px solid ${saved[field] ? 'rgba(90,203,138,0.3)' : saveErr[field] ? 'rgba(224,96,96,0.3)' : color + '44'}`,
+                        color: saved[field] ? colors.green : saveErr[field] ? colors.red : color,
+                        borderRadius: 6, padding: '4px 12px',
+                        fontSize: 10, fontFamily: fonts.mono, letterSpacing: '0.5px',
+                      }}
+                    >
+                      {saved[field] ? '✓ Saved to Notes' : saving[field] ? 'Saving…' : saveErr[field] ? '↺ Retry' : '↑ Save to Notes'}
+                    </button>
+                  )}
+                </div>
               </div>
               <textarea
                 rows={4}
