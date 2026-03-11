@@ -100,14 +100,14 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
     byDate[key].push(p)
   })
 
-  // Dated groups sorted chronologically
-  const datedKeys = Object.keys(byDate)
-    .filter(k => k !== '__none')
+  // Always show all 7 days of the current week; then any other dated posts outside the week
+  const weekDaySet = new Set(weekDayStrs)
+  const outsideDates = Object.keys(byDate)
+    .filter(k => k !== '__none' && !weekDaySet.has(k))
     .sort()
 
   const handleDayClick = (dateStr) => {
     setFocusDate(dateStr)
-    // If that date has posts, scroll to it
     setTimeout(() => {
       dateRefs.current[dateStr]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
@@ -226,43 +226,47 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
       )}
 
       {/* ── Grouped date view ── */}
-      {filtered.length === 0 && !creating ? (
-        <div style={{ textAlign: 'center', padding: '70px 20px', color: colors.textFaint, fontFamily: fonts.mono, fontSize: 11, letterSpacing: '1px' }}>
-          <div style={{ fontSize: 32, marginBottom: 14, opacity: 0.2, fontFamily: fonts.display }}>✦</div>
-          No posts here yet
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-          {datedKeys.map(dateStr => {
-            const isFocused = focusDate === dateStr
-            const isToday = dateStr === today
-            const isPast = dateStr < today
-            const dateObj = new Date(dateStr + 'T12:00:00')
-            const label = isToday ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
-            return (
-              <div key={dateStr} ref={el => dateRefs.current[dateStr] = el}>
-                {/* Date header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                  <div style={{
-                    fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px',
-                    color: isToday ? colors.gold : isFocused ? colors.gold : isPast ? colors.textFaint : colors.textMuted,
-                    fontWeight: isToday ? '600' : '400',
-                    paddingBottom: 2,
-                    borderBottom: isToday ? `1px solid ${colors.gold}44` : isFocused ? `1px solid rgba(212,168,74,0.2)` : '1px solid transparent',
-                  }}>
-                    {label}
-                  </div>
-                  <div style={{ flex: 1, height: 1, background: isFocused ? 'rgba(212,168,74,0.15)' : 'rgba(255,255,255,0.05)' }} />
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    {byDate[dateStr].map((p, i) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* Always show all 7 days of the current week */}
+        {weekDayStrs.map(dateStr => {
+          const isFocused = focusDate === dateStr
+          const isToday = dateStr === today
+          const isPast = dateStr < today
+          const dateObj = new Date(dateStr + 'T12:00:00')
+          const label = isToday ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+          const dayPosts = byDate[dateStr] || []
+
+          return (
+            <div key={dateStr} ref={el => dateRefs.current[dateStr] = el}>
+              {/* Date header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: dayPosts.length ? 8 : 0 }}>
+                <div style={{
+                  fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', whiteSpace: 'nowrap',
+                  color: isToday ? colors.gold : isFocused ? colors.gold : isPast ? 'rgba(255,255,255,0.18)' : colors.textMuted,
+                  fontWeight: isToday ? '600' : '400',
+                  paddingBottom: 2,
+                  borderBottom: isToday ? `1px solid ${colors.gold}44` : '1px solid transparent',
+                }}>
+                  {label}
+                </div>
+                <div style={{ flex: 1, height: 1, background: isFocused ? 'rgba(212,168,74,0.15)' : isPast ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)' }} />
+                {dayPosts.length > 0 && (
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    {dayPosts.map((p, i) => (
                       <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold, opacity: 0.7 }} />
                     ))}
                   </div>
-                </div>
+                )}
+                {dayPosts.length === 0 && (
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.1)', fontFamily: fonts.mono, letterSpacing: '1px' }}>—</span>
+                )}
+              </div>
 
-                {/* Posts for this date */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {byDate[dateStr].map(post => (
+              {/* Posts for this day */}
+              {dayPosts.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {dayPosts.map(post => (
                     <PostCard
                       key={post.id}
                       post={post}
@@ -278,38 +282,90 @@ export default function PostsTab({ posts, canEdit, onAdd, onUpdate, onDelete }) 
                     />
                   ))}
                 </div>
-              </div>
-            )
-          })}
-
-          {/* Unscheduled */}
-          {byDate['__none']?.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <div style={{ fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', color: colors.textFaint }}>Unscheduled</div>
-                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {byDate['__none'].map(post => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    canEdit={canEdit}
-                    editing={editing === post.id}
-                    confirming={confirming === post.id}
-                    onEdit={() => setEditing(post.id)}
-                    onCancelEdit={() => setEditing(null)}
-                    onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
-                    onConfirmDelete={() => setConfirming(post.id)}
-                    onCancelDelete={() => setConfirming(null)}
-                    onDelete={() => { onDelete(post.id); setConfirming(null) }}
-                  />
-                ))}
-              </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          )
+        })}
+
+        {/* Posts outside the current week, sorted chronologically */}
+        {outsideDates.length > 0 && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+              <div style={{ fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Other Dates</div>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+            </div>
+            {outsideDates.map(dateStr => {
+              const dateObj = new Date(dateStr + 'T12:00:00')
+              const label = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+              const isPast = dateStr < today
+              return (
+                <div key={dateStr} ref={el => dateRefs.current[dateStr] = el}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontFamily: fonts.mono, letterSpacing: '1px', color: isPast ? 'rgba(255,255,255,0.18)' : colors.textMuted, whiteSpace: 'nowrap' }}>{label}</div>
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+                    <div style={{ display: 'flex', gap: 3 }}>
+                      {byDate[dateStr].map((p, i) => (
+                        <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: PLATFORMS[p.platform]?.color || colors.gold, opacity: 0.7 }} />
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {byDate[dateStr].map(post => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        canEdit={canEdit}
+                        editing={editing === post.id}
+                        confirming={confirming === post.id}
+                        onEdit={() => setEditing(post.id)}
+                        onCancelEdit={() => setEditing(null)}
+                        onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
+                        onConfirmDelete={() => setConfirming(post.id)}
+                        onCancelDelete={() => setConfirming(null)}
+                        onDelete={() => { onDelete(post.id); setConfirming(null) }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </>
+        )}
+
+        {/* Unscheduled */}
+        {byDate['__none']?.length > 0 && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <div style={{ fontSize: 9, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase' }}>Unscheduled</div>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {byDate['__none'].map(post => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  canEdit={canEdit}
+                  editing={editing === post.id}
+                  confirming={confirming === post.id}
+                  onEdit={() => setEditing(post.id)}
+                  onCancelEdit={() => setEditing(null)}
+                  onSave={async p => { await onUpdate({ ...post, ...p }); setEditing(null) }}
+                  onConfirmDelete={() => setConfirming(post.id)}
+                  onCancelDelete={() => setConfirming(null)}
+                  onDelete={() => { onDelete(post.id); setConfirming(null) }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filtered.length === 0 && !creating && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textFaint, fontFamily: fonts.mono, fontSize: 11, letterSpacing: '1px' }}>
+            <div style={{ fontSize: 28, marginBottom: 12, opacity: 0.15, fontFamily: fonts.display }}>✦</div>
+            No posts match the current filters
+          </div>
+        )}
+      </div>
     </div>
   )
 }
