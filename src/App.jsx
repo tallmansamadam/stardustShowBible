@@ -12,6 +12,7 @@ import { colors, fonts } from './components/styles'
 const ROLE_MAP = {
   // 'tallmancodes@gmail.com': 'editor',
   // 'dino.brandom@gmail.com': 'manager',
+  'ErikSturgeon13@gmail.com': 'viewer',
 }
 const DEFAULT_ROLE = 'editor'
 
@@ -40,7 +41,7 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const resolveRole = (email) => setRole(ROLE_MAP[email] || DEFAULT_ROLE)
+  const resolveRole = (email) => setRole(ROLE_MAP[email] ?? ROLE_MAP[email?.toLowerCase()] ?? DEFAULT_ROLE)
 
   useEffect(() => { if (session) loadAll() }, [session])
 
@@ -178,7 +179,7 @@ export default function App() {
           </div>
 
           <div style={{ fontSize: 9, letterSpacing: '3.5px', color: 'rgba(155,143,212,0.55)', textTransform: 'uppercase', fontFamily: fonts.mono }}>
-            Club Organizer
+            Stardust Online Organizer
           </div>
         </div>
 

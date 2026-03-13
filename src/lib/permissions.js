@@ -5,12 +5,14 @@
 export const ROLES = {
   EDITOR: 'editor',
   MANAGER: 'manager',
+  VIEWER: 'viewer',
 }
 
 // Which tabs each role can EDIT (all roles can VIEW everything)
 export const EDIT_PERMISSIONS = {
   editor:  ['notes', 'posts', 'showbible', 'karaoke', 'djsets', 'planning', 'sound', 'nightof', 'contacts'],
   manager: ['posts', 'showbible', 'planning', 'sound', 'nightof', 'contacts'],
+  viewer:  [],
 }
 
 export function canEdit(role, section) {

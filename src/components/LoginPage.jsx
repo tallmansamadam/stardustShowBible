@@ -28,8 +28,8 @@ export default function LoginPage() {
       }} />
 
       <div
-        className="glass-solid"
-        style={{ position: 'relative', zIndex: 1, width: 360, borderRadius: 20, padding: '50px 42px 46px', animation: 'fadein 0.7s ease both' }}
+        className="glass-solid login-card"
+        style={{ position: 'relative', zIndex: 1, width: '90vw', maxWidth: 360, borderRadius: 20, padding: '50px 42px 46px', animation: 'fadein 0.7s ease both' }}
       >
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 38 }}>
@@ -40,7 +40,7 @@ export default function LoginPage() {
           />
           <GoldDivider />
           <div style={{ fontSize: 9, letterSpacing: '3.5px', color: 'rgba(155,143,212,0.6)', textTransform: 'uppercase', fontFamily: fonts.mono, marginTop: 12 }}>
-            Club Organizer
+            Stardust Online Organizer
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { colors, fonts } from './styles'
 
-const TAGS = ['general', 'electro-swing', 'karaoke', 'dj', 'marketing', 'sound', 'log', 'setlist', 'incident']
+const TAGS = ['general', 'karaoke', 'electro-swing', 'dj', 'marketing', 'sound', 'log', 'setlist', 'incident']
 const TAG_COLORS = {
   general:        'rgba(255,255,255,0.3)',
   'electro-swing':'#d4a84a',
