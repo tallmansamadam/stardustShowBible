@@ -253,9 +253,9 @@ Use a mix of tiers on every post. Don't use all of them — pick 10–15 that fi
 
 This applies to all visual formats: Instagram Stories, Reels, TikTok videos, and any post with text overlaid on the image or video.
 
-**On-screen captions (overlaid text) must be 3 words or fewer per line.**
+**On-screen captions (overlaid text) should aim for 3 words or fewer per line.**
 
-This is not a suggestion. Long overlaid text kills readability on a phone screen and dilutes the visual impact of the image behind it. If you need more than 3 words, you don't need on-screen text — you need a written caption below the post.
+Short overlaid text reads instantly on a phone screen and keeps the visual doing its job. The longer the line, the more it competes with the image behind it. 3 words is the target — occasionally 4 or 5 is fine if the line genuinely can't be cut, but if you're regularly hitting 6+, the copy belongs in the written caption below the post, not on the image.
 
 **Good:**
 - "STARDUST CHICAGO"
