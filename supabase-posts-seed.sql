@@ -38,11 +38,21 @@ INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, medi
 
 -- ── POST 04 · TikTok Video · Mar 12 · Score 3.2 · (020) ─────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'thursday karaoke at stardust hits different. 710 n clark, river north, chicago. doors at 8.',
 '',
 'Thursday energy — the room warming up, regulars and newcomers. Quick cuts, raw footage. On-screen: "STARDUST · EVERY THURSDAY"',
+'Script: "thursday karaoke at stardust hits different."
+
+0:00 · 2s — Wide room, lights warming up, night just starting
+0:02 · 2s — From back of crowd toward stage — first singer, room half-full
+0:04 · 2s — Regulars arriving — coats off, drinks ordered
+0:06 · 2s — Someone mid-song, crowd leaning in
+0:08 · 2s — Bar in motion, the room getting busy
+0:10 · 2s — Wide again, energy climbing
+0:12 · 4s — End card: STARDUST CHICAGO · EVERY THURSDAY · 710 N CLARK
+Total: ~16s',
 '2026-03-12');
 
 -- ── POST 05 · Instagram Story · Mar 13 · Score 4.0 · (010) ──────────────────
@@ -58,11 +68,21 @@ INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, medi
 
 -- ── POST 06 · TikTok Video · Mar 13 · Score 4.0 · (010) ─────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'friday night starts at stardust. 710 n clark, river north, chicago. karaoke till 4am.',
 '',
 'The moment the room starts filling up — people arriving, coats off, drinks in hand, the energy building. On-screen: "STARDUST CHICAGO · EVERY FRIDAY".',
+'Script: "friday night starts at stardust."
+
+0:00 · 2s — Empty stage, mic stand lit, room waiting
+0:02 · 2s — Doors open — first people through, coats still on
+0:04 · 2s — First drinks poured at the bar
+0:06 · 2s — First singer at the mic — nervous, good energy
+0:08 · 2s — Room half-full, volume rising
+0:10 · 2s — Wide shot — Friday energy taking hold
+0:12 · 4s — End card: STARDUST CHICAGO · EVERY FRIDAY · TILL 4AM
+Total: ~16s',
 '2026-03-13');
 
 -- ── POST 07 · Instagram Story · Mar 14 · Score 4.0 · (000) ──────────────────
@@ -90,11 +110,16 @@ Back Thursday.
 
 -- ── POST 10 · TikTok Video · Mar 16 · Score 3.0 · (010) ─────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'this is what stardust looks like on a karaoke night. we''re back thursday. 710 n clark, river north, chicago.',
 '',
 'Best uncut clip from the weekend — one moment, no edits, real sound. The kind of clip that makes someone feel like they missed something. On-screen at the end: "STARDUST · THU FRI SAT".',
+'Script: "this is what stardust looks like on a karaoke night."
+
+0:00 · 20s — One uncut clip: room at peak, someone mid-song, crowd fully in it. Raw audio. No edits.
+0:20 · 3s  — End card: STARDUST · THU FRI SAT · 710 N CLARK
+Total: ~23s',
 '2026-03-16');
 
 -- ── POST 11 · Instagram Feed Post · Mar 18 · Score 3.0 · (010) ──────────────
@@ -203,7 +228,7 @@ INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, medi
 
 -- ── POST 25 · Instagram Reel · Mar 27 · Score 3.5 · (020) ───────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'Instagram', 'Reel', 'draft',
 'Last Friday of March.
 Don''t waste it.
@@ -211,15 +236,35 @@ Don''t waste it.
 📍 710 N Clark · River North · Doors 8pm',
 '#stardustchicago #karaoke #karaokenight #friday #fridaynight #chicagonightlife #rivernorth #chicagobar #livekaraoke #312 #thingstodoinchicago #weekendplans',
 'The room coming alive — lights up, first people arriving, energy building. Quick cuts. On-screen: "LAST FRIDAY OF MARCH · STARDUST CHICAGO"',
+'Script: "Last Friday of March. Don''t waste it."
+
+0:00 · 2s — Bar lit, stools mostly empty — room still early
+0:02 · 2s — First people arriving, energy starting to build
+0:04 · 2s — Lights up full — the room transformed
+0:06 · 2s — Someone grabbing the mic — the night beginning
+0:08 · 2s — Crowd filling in — drinks raised, voices joining
+0:10 · 3s — Wide shot — the last Friday of March, room alive
+0:13 · 4s — End card: LAST FRIDAY OF MARCH · STARDUST CHICAGO
+Total: ~17s',
 '2026-03-27');
 
 -- ── POST 26 · TikTok Video · Mar 27 · Score 3.1 · (010) ─────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'getting stardust ready for the last friday of march. 710 n clark, river north. karaoke till 4am.',
 '',
 'POV behind-the-scenes — mics being checked, lights coming up, bar being set. Quick cuts. Raw footage. On-screen: "getting stardust ready for tonight".',
+'Script: "getting stardust ready for tonight."
+
+0:00 · 2s — Empty room, house lights still up
+0:02 · 2s — Mics being checked — held up, tapped, tested
+0:04 · 2s — QR cards placed on tables — hands doing the work
+0:06 · 2s — Lights switching from house to stage wash
+0:08 · 2s — Bar being set — bottles lined up, glasses polished
+0:10 · 2s — Final wide shot — room ready, doors about to open
+0:12 · 4s — End card: STARDUST CHICAGO · TONIGHT · 710 N CLARK
+Total: ~16s',
 '2026-03-27');
 
 -- ── POST 27 · Instagram Story · Mar 28 · Score 4.0 · (000) ──────────────────
@@ -256,11 +301,20 @@ INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, medi
 
 -- ── POST 31 · TikTok Video · Apr 2 · Score 4.0 · (010) ──────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'stardust chicago',
 '',
 'Atmosphere-only teaser video. Different angle from any previous teaser — try a slow close-up of a single lit detail (a candle, the bar edge, a glass). 10 seconds. Ambient audio only. No on-screen text except the Stardust logo at the very end.',
+'Script: (no spoken words — ambient audio only)
+
+0:00 · 3s — Extreme close-up: a candle flame, warm and still
+0:03 · 3s — Bar edge in low light — a glass, a soft reflection
+0:06 · 2s — Stage in near-darkness, one practical light source
+0:08 · 2s — Slow fade to black
+0:10 · 3s — End card: STARDUST CHICAGO (logo only)
+Total: ~13s
+Note: No music, no text, no voice. Room tone only.',
 '2026-04-02');
 
 -- ── POST 32 · Instagram Story · Apr 3 · Score 3.4 · (020) ───────────────────
@@ -277,11 +331,21 @@ The mic is live.
 
 -- ── POST 33 · TikTok Video · Apr 3 · Score 3.4 · (020) ──────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'it''s friday. stardust chicago is open. 710 n clark, river north. karaoke till 4am.',
 '',
 'The room filling up — energy building, people arriving. Quick cuts, phone footage. On-screen: "STARDUST CHICAGO · OPEN TONIGHT"',
+'Script: "it''s friday. stardust chicago is open."
+
+0:00 · 2s — Exterior: 710 N Clark, neon on, doors open
+0:02 · 2s — Room filling — people through the door, energy starting
+0:04 · 2s — Bar busy — drinks ordered, the room getting loud
+0:06 · 2s — From back of crowd toward stage — singer in the distance
+0:08 · 2s — Close on a face singing along — completely in it
+0:10 · 2s — Wide room — fuller, louder, lights bright
+0:12 · 4s — End card: STARDUST CHICAGO · OPEN TONIGHT · 710 N CLARK
+Total: ~16s',
 '2026-04-03');
 
 -- ── POST 34 · Facebook Event · Apr 3 · Score 3.0 · (020) ────────────────────
@@ -323,7 +387,7 @@ See you Thursday.
 
 -- ── POST 38 · Instagram Reel · Apr 8 · Score 3.65 · (020) ───────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'Instagram', 'Reel', 'draft',
 'The swing era never ended.
 It just got louder.
@@ -332,15 +396,36 @@ Coming soon to Stardust Chicago.
 📍 710 N Clark · River North',
 '#stardustchicago #electroswing #swingmusic #caravanpalace #parovstelar #chicago #rivernorth #chicagonightlife #vintagestyle #jazzvibes #speakeasy #electrojazz #comingsoon',
 'Electro Swing Week 2 — genre reveal. Drop straight into audio (Caravan Palace or Parov Stelar — pick the 15 seconds that hits hardest). Art deco visuals, warm amber. On-screen: "electro swing is coming to stardust chicago"',
+'Script: "The swing era never ended. It just got louder."
+
+0:00 · 3s — Cold open: Caravan Palace audio, no title card. Art deco image, warm amber.
+0:03 · 2s — A vintage detail — 1920s texture, something out of time
+0:05 · 2s — On-screen: "imagine jazz."
+0:07 · 2s — On-screen: "but it makes you dance."
+0:09 · 2s — Wider art deco image — the full aesthetic
+0:11 · 2s — On-screen: "electro swing"
+0:13 · 4s — End card: COMING SOON · STARDUST CHICAGO · 710 N CLARK
+Total: ~17s
+Note: Audio must be Caravan Palace or Parov Stelar — let the 15 strongest seconds play uncut.',
 '2026-04-08');
 
 -- ── POST 39 · TikTok Video · Apr 8 · Score 5.0 · (010) ──────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'the swing era never ended. it just got louder. electro swing is coming to stardust chicago. 710 n clark, river north.',
 '',
 'Open cold on audio — no title card, just the music. Let it play for 3 seconds before any text appears. On-screen: "imagine jazz." → pause → "but it makes you want to dance." → "electro swing is coming to stardust chicago." End with logo.',
+'Script: "the swing era never ended. it just got louder."
+
+0:00 · 3s — Cold open: Caravan Palace audio hits first. No title. Just the music.
+0:03 · 2s — On-screen: "imagine jazz."
+0:05 · 2s — On-screen: "but it makes you want to dance."
+0:07 · 3s — Art deco visual — warm amber, sharp geometry, the Stardust aesthetic
+0:10 · 2s — On-screen: "electro swing is coming to stardust chicago."
+0:12 · 4s — End card: STARDUST CHICAGO (logo)
+Total: ~16s
+Note: Do not cut the music. Audio is the whole video.',
 '2026-04-08');
 
 -- ── POST 40 · Facebook Post · Apr 8 · Score 3.8 · (020) ─────────────────────
@@ -674,11 +759,22 @@ Open till 5am.
 
 -- ── POST 67 · TikTok Video · Apr 11 ─────────────────────────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'saturday night at stardust goes till 5am. 710 n clark, river north, chicago. karaoke all night.',
 '',
 'Raw Saturday footage — the room at full capacity, different voices, different songs, the crowd fully in it. Quick cuts. On-screen: "STARDUST CHICAGO · EVERY SATURDAY · TILL 5AM"',
+'Script: "saturday night at stardust goes till 5am."
+
+0:00 · 2s — Wide room at full capacity — every table, wall-to-wall
+0:02 · 2s — Singer mid-song, fully committed
+0:04 · 2s — From back of crowd toward stage — sea of people, singer in the distance
+0:06 · 2s — Close on crowd — multiple faces, everyone locked in
+0:08 · 2s — Different singer — totally different song, same energy
+0:10 · 2s — Bar packed — drinks in every hand
+0:12 · 2s — Wide again — the room at absolute peak
+0:14 · 4s — End card: STARDUST CHICAGO · EVERY SATURDAY · TILL 5AM
+Total: ~18s',
 '2026-04-11');
 
 -- ── POST 68 · Twitter/X Tweet · Apr 11 ──────────────────────────────────────
@@ -780,11 +876,22 @@ The weekend starts now.
 
 -- ── POST 77 · TikTok Video · Apr 17 ─────────────────────────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'friday night karaoke at stardust chicago. 710 n clark, river north. open till 4am.',
 '',
 'The room coming alive on a Friday — first people arriving, coats off, first drinks, the energy building fast. Quick cuts. On-screen: "STARDUST CHICAGO · EVERY FRIDAY · TILL 4AM"',
+'Script: "friday night karaoke at stardust chicago."
+
+0:00 · 2s — Stage lit, mic in frame, room still empty — the promise
+0:02 · 2s — Doors opening — first people through, coats on
+0:04 · 2s — First drinks at the bar, the room coming alive
+0:06 · 2s — First singer of the night at the mic
+0:08 · 2s — Room half-full, volume picking up fast
+0:10 · 2s — Someone in the crowd already singing along
+0:12 · 2s — Wide shot — the Friday crowd building
+0:14 · 4s — End card: STARDUST CHICAGO · EVERY FRIDAY · TILL 4AM
+Total: ~18s',
 '2026-04-17');
 
 -- ── POST 78 · Twitter/X Tweet · Apr 17 ──────────────────────────────────────
@@ -808,11 +915,16 @@ Open till 5am.
 
 -- ── POST 80 · TikTok Video · Apr 18 ─────────────────────────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'stardust on a saturday is something you have to see in person. 710 n clark, river north, chicago. open till 5am.',
 '',
 'Best uncut Saturday footage — one continuous moment, raw audio, the room doing exactly what it does. The clip that makes someone feel like they missed something important. On-screen at the end: "STARDUST · EVERY SATURDAY · TILL 5AM"',
+'Script: "stardust on a saturday is something you have to see in person."
+
+0:00 · 18s — One uncut clip, no edits, raw audio: the room at full Saturday energy. Whoever is on the mic, the crowd doing exactly what it does. The shot that makes someone feel like they missed something important.
+0:18 · 4s  — End card: STARDUST · EVERY SATURDAY · TILL 5AM
+Total: ~22s',
 '2026-04-18');
 
 -- ── POST 81 · Twitter/X Tweet · Apr 18 ──────────────────────────────────────
@@ -919,11 +1031,22 @@ INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, medi
 
 -- ── POST 91 · TikTok Video · Apr 25 ─────────────────────────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'electro swing night at stardust chicago. tonight. 710 n clark, river north. doors at 8.',
 '',
 'Open cold on audio — Caravan Palace or Parov Stelar, no intro. Show the room being set up: lights, bar, details. Quick cuts. On-screen: "TONIGHT · ELECTRO SWING NIGHT · STARDUST CHICAGO · 710 N CLARK"',
+'Script: "electro swing night at stardust chicago. tonight."
+
+0:00 · 2s — Cold open: Caravan Palace audio, no intro. Room still being set up.
+0:02 · 2s — Lights being adjusted — warm amber filling the space
+0:04 · 2s — Bar being stocked — bottles, glassware, the details
+0:06 · 2s — Stage lit and ready — the space transformed
+0:08 · 2s — A close art deco detail — something that signals the night
+0:10 · 2s — On-screen: "TONIGHT"
+0:12 · 4s — End card: ELECTRO SWING NIGHT · STARDUST CHICAGO · 710 N CLARK
+Total: ~16s
+Note: Caravan Palace or Parov Stelar audio runs uninterrupted throughout.',
 '2026-04-25');
 
 -- ── POST 92 · Facebook Event · Apr 25 ───────────────────────────────────────
@@ -1008,11 +1131,21 @@ Stardust. 8pm.
 
 -- ── POST 99 · TikTok Video · May 1 ──────────────────────────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'first friday of may at stardust chicago. 710 n clark, river north. karaoke till 4am.',
 '',
 'The room coming alive on the first Friday of May — fresh energy, people arriving ready for the month ahead. Quick cuts, real footage. On-screen: "STARDUST CHICAGO · FIRST FRIDAY OF MAY · TILL 4AM"',
+'Script: "first friday of may at stardust chicago."
+
+0:00 · 2s — Wide room, fresh Friday energy — the first of the month
+0:02 · 2s — People arriving ready — coats off fast, drinks ordered immediately
+0:04 · 2s — From back of crowd toward stage — the room building
+0:06 · 2s — First singer of May at the mic — committing fully
+0:08 · 2s — Bar busy — the whole room in motion
+0:10 · 2s — Wide shot — a full room on the first Friday of May
+0:12 · 4s — End card: STARDUST CHICAGO · FIRST FRIDAY OF MAY · TILL 4AM
+Total: ~16s',
 '2026-05-01');
 
 -- ── POST 100 · Twitter/X Tweet · May 1 ──────────────────────────────────────
@@ -1126,11 +1259,22 @@ The stage goes till 5am.
 
 -- ── POST 110 · TikTok Video · May 9 ─────────────────────────────────────────
 
-INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, date) VALUES
+INSERT INTO posts (user_id, platform, post_type, status, content, hashtags, media_notes, video_script, date) VALUES
 (uid, 'TikTok', 'Video', 'draft',
 'saturday karaoke at stardust hits different when you stay till 5am. 710 n clark, river north, chicago.',
 '',
 'Late Saturday footage — the room deep into the night, past midnight, voices still strong. The "we stayed and it was worth it" feeling. On-screen: "STARDUST CHICAGO · EVERY SATURDAY · TILL 5AM"',
+'Script: "saturday karaoke at stardust hits different when you stay till 5am."
+
+0:00 · 2s — Wide room deep into the night — past midnight, still packed
+0:02 · 2s — Singer at mic — late in the night, voice still strong
+0:04 · 2s — From back of crowd toward stage — the people who stayed, all of them
+0:06 · 2s — Close on faces — that "we should leave but we''re not leaving" look
+0:08 · 2s — Bar still going — 1am, 2am energy
+0:10 · 2s — Someone absolutely losing it on a song — the late-night peak
+0:12 · 2s — Wide room — the "we stayed and it was worth it" shot
+0:14 · 4s — End card: STARDUST CHICAGO · EVERY SATURDAY · TILL 5AM
+Total: ~18s',
 '2026-05-09');
 
 -- ── POST 111 · Twitter/X Tweet · May 9 ──────────────────────────────────────

@@ -25,7 +25,7 @@ const PLATFORMS = {
   },
   Facebook: {
     color: '#4A90D9',
-    postTypes: ['Post', 'Event', 'Story', 'Reel'],
+    postTypes: ['Post', 'Story', 'Reel', 'Event'],
     captionLabel: 'Post Copy',
     charLimit: null,
     hashtagLimit: null,
