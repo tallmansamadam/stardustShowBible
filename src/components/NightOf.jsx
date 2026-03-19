@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { colors, fonts } from './styles'
+import { supabase } from '../lib/supabase'
 
 const CHECKLIST = {
   preshow: {
@@ -46,13 +47,12 @@ const CHECKLIST = {
 
 export default function NightOf({ onAdd, session }) {
   const today = new Date().toISOString().slice(0, 10)
-  const storageKey = `nightof-${today}`
-  const notesKey  = `nightof-notes-${today}`
+  const checklistKey = `checklist-${today}`
+  const notesKey     = `nightof-notes-${today}`
 
-  const [checked, setChecked] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(storageKey)) || {} }
-    catch { return {} }
-  })
+  const [checked, setChecked] = useState({})
+  const [loading, setLoading] = useState(true)
+  const ignoreRef = useRef(false) // prevents echo from own realtime updates
 
   const [notes, setNotes] = useState(() => {
     try { return JSON.parse(localStorage.getItem(notesKey)) || { crowd: '', tech: '' } }
@@ -63,10 +63,63 @@ export default function NightOf({ onAdd, session }) {
   const [saved,  setSaved]  = useState({ crowd: false, tech: false })
   const [saveErr, setSaveErr] = useState({ crowd: null, tech: null })
 
+  // ── Load checklist state from Supabase ─────────────────────────────────────
+  useEffect(() => {
+    let sub
+
+    const load = async () => {
+      const { data } = await supabase
+        .from('content')
+        .select('value')
+        .eq('key', checklistKey)
+        .maybeSingle()
+      try { setChecked(data?.value ? JSON.parse(data.value) : {}) }
+      catch { setChecked({}) }
+      setLoading(false)
+    }
+
+    load()
+
+    // Realtime: sync across all users
+    sub = supabase
+      .channel(`checklist-${today}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'content',
+        filter: `key=eq.${checklistKey}`,
+      }, (payload) => {
+        if (ignoreRef.current) return
+        try { setChecked(payload.new?.value ? JSON.parse(payload.new.value) : {}) }
+        catch { setChecked({}) }
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(sub) }
+  }, [today])
+
+  // ── Write checked state to Supabase ───────────────────────────────────────
+  const persistChecked = async (next) => {
+    ignoreRef.current = true
+    await supabase.from('content').upsert(
+      { key: checklistKey, value: JSON.stringify(next), updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    )
+    setTimeout(() => { ignoreRef.current = false }, 300)
+  }
+
   const toggle = (key) => {
     const next = { ...checked, [key]: !checked[key] }
     setChecked(next)
-    localStorage.setItem(storageKey, JSON.stringify(next))
+    persistChecked(next)
+  }
+
+  const reset = async () => {
+    setChecked({})
+    ignoreRef.current = true
+    await supabase.from('content').upsert(
+      { key: checklistKey, value: '{}', updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    )
+    setTimeout(() => { ignoreRef.current = false }, 300)
   }
 
   const updateNote = (field, value) => {
@@ -97,11 +150,6 @@ export default function NightOf({ onAdd, session }) {
     }
   }
 
-  const reset = () => {
-    setChecked({})
-    localStorage.removeItem(storageKey)
-  }
-
   const totalItems = Object.values(CHECKLIST).reduce((a, s) => a + s.items.length, 0)
   const doneItems = Object.values(checked).filter(Boolean).length
   const pct = Math.round((doneItems / totalItems) * 100)
@@ -116,11 +164,11 @@ export default function NightOf({ onAdd, session }) {
           </h2>
           <div style={{ fontSize: 11, color: colors.textFaint, fontFamily: fonts.mono }}>
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-            &nbsp;·&nbsp;{doneItems} / {totalItems}&nbsp;&nbsp;{pct}%
+            &nbsp;·&nbsp;{loading ? '…' : `${doneItems} / ${totalItems}  ${pct}%`}
           </div>
         </div>
-        <button onClick={reset} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 8, padding: '6px 14px', fontSize: 10, fontFamily: fonts.mono, letterSpacing: '1px' }}>
-          Reset
+        <button onClick={reset} title="Clear all checkboxes for everyone" style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 8, padding: '6px 14px', fontSize: 10, fontFamily: fonts.mono, letterSpacing: '1px' }}>
+          ↺ Reset All
         </button>
       </div>
 
