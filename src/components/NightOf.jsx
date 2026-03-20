@@ -51,6 +51,7 @@ export default function NightOf({ onAdd, session }) {
   const notesKey     = `nightof-notes-${today}`
 
   const [checked, setChecked] = useState({})
+  const [confirmReset, setConfirmReset] = useState(false)
   const [loading, setLoading] = useState(true)
   const ignoreRef = useRef(false) // prevents echo from own realtime updates
 
@@ -167,9 +168,21 @@ export default function NightOf({ onAdd, session }) {
             &nbsp;·&nbsp;{loading ? '…' : `${doneItems} / ${totalItems}  ${pct}%`}
           </div>
         </div>
-        <button onClick={reset} title="Clear all checkboxes for everyone" style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 8, padding: '6px 14px', fontSize: 10, fontFamily: fonts.mono, letterSpacing: '1px' }}>
-          ↺ Reset All
-        </button>
+        {confirmReset ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, color: colors.textFaint, fontFamily: fonts.mono }}>Reset for everyone?</span>
+            <button onClick={() => { reset(); setConfirmReset(false) }} style={{ background: 'rgba(224,96,96,0.1)', border: '1px solid rgba(224,96,96,0.3)', color: '#e06060', borderRadius: 6, padding: '5px 12px', fontSize: 10, fontFamily: fonts.mono }}>
+              Yes, reset
+            </button>
+            <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 6, padding: '5px 10px', fontSize: 10, fontFamily: fonts.mono }}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setConfirmReset(true)} title="Clear all checkboxes for everyone" style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 8, padding: '6px 14px', fontSize: 10, fontFamily: fonts.mono, letterSpacing: '1px' }}>
+            ↺ Reset All
+          </button>
+        )}
       </div>
 
       {/* Progress bar */}
