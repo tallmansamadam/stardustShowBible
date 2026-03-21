@@ -45,19 +45,48 @@ const CHECKLIST = {
   },
 }
 
-export default function NightOf({ onAdd, session }) {
+// Format a checked-state object into a readable markdown log
+const buildLogContent = (checkedState, dateLabel) => {
+  const totalItems = Object.values(CHECKLIST).reduce((a, s) => a + s.items.length, 0)
+  const totalDone  = Object.values(checkedState).filter(Boolean).length
+  const lines = [`## Night Of — ${dateLabel}`, '']
+
+  Object.entries(CHECKLIST).forEach(([sectionKey, section]) => {
+    const sectionDone = section.items.filter((_, i) => checkedState[`${sectionKey}-${i}`]).length
+    lines.push(`### ${section.label} — ${sectionDone}/${section.items.length}`)
+    section.items.forEach((item, i) => {
+      lines.push(checkedState[`${sectionKey}-${i}`] ? `- [x] ${item}` : `- [ ] ${item}`)
+    })
+    lines.push('')
+  })
+
+  lines.push('---')
+  lines.push(`${totalDone} / ${totalItems} items completed`)
+  return lines.join('\n')
+}
+
+export default function NightOf({ onAdd, session, role }) {
   // Roll over at 7am — before 7am counts as the previous night's show
   const _now = new Date()
-  const _d = new Date(_now)
-  if (_now.getHours() < 7) _d.setDate(_d.getDate() - 1)
-  const showDate = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`
+  const showDateObj = new Date(_now)
+  if (_now.getHours() < 7) showDateObj.setDate(showDateObj.getDate() - 1)
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const showDate = fmt(showDateObj)
+
+  // Previous show date — used for auto-logging when the night rolls over
+  const prevDateObj = new Date(showDateObj)
+  prevDateObj.setDate(prevDateObj.getDate() - 1)
+  const prevShowDate = fmt(prevDateObj)
+
   const checklistKey = `checklist-${showDate}`
   const notesKey     = `nightof-notes-${showDate}`
+
+  const canReset = role && role !== 'viewer'
 
   const [checked, setChecked] = useState({})
   const [confirmReset, setConfirmReset] = useState(false)
   const [loading, setLoading] = useState(true)
-  const ignoreRef = useRef(false) // prevents echo from own realtime updates
+  const ignoreRef = useRef(false)
 
   const [notes, setNotes] = useState(() => {
     try { return JSON.parse(localStorage.getItem(notesKey)) || { crowd: '', tech: '' } }
@@ -85,7 +114,6 @@ export default function NightOf({ onAdd, session }) {
 
     load()
 
-    // Realtime: sync across all users
     sub = supabase
       .channel(`checklist-${showDate}`)
       .on('postgres_changes', {
@@ -99,6 +127,47 @@ export default function NightOf({ onAdd, session }) {
       .subscribe()
 
     return () => { supabase.removeChannel(sub) }
+  }, [showDate])
+
+  // ── Auto-log previous night's checklist at 7am rollover ────────────────────
+  useEffect(() => {
+    const autoLog = async () => {
+      // Check if already logged (marker key prevents duplicate logs from multiple users)
+      const { data: marker } = await supabase
+        .from('content').select('value')
+        .eq('key', `checklist-logged-${prevShowDate}`).maybeSingle()
+      if (marker) return
+
+      // Fetch the previous night's checklist
+      const { data } = await supabase
+        .from('content').select('value')
+        .eq('key', `checklist-${prevShowDate}`).maybeSingle()
+      if (!data?.value) return
+
+      let prevChecked
+      try { prevChecked = JSON.parse(data.value) } catch { return }
+      if (Object.keys(prevChecked).length === 0) return
+
+      // Set marker immediately to prevent race conditions with other clients
+      await supabase.from('content').upsert(
+        { key: `checklist-logged-${prevShowDate}`, value: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { onConflict: 'key' }
+      )
+
+      // Save log as a note
+      if (onAdd) {
+        const dateLabel = prevDateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+        await onAdd({
+          title: `Night Of Log — ${dateLabel}`,
+          content: buildLogContent(prevChecked, dateLabel),
+          tag: 'log',
+          date: prevShowDate,
+          pinned: false,
+        })
+      }
+    }
+
+    autoLog()
   }, [showDate])
 
   // ── Write checked state to Supabase ───────────────────────────────────────
@@ -117,7 +186,25 @@ export default function NightOf({ onAdd, session }) {
     persistChecked(next)
   }
 
+  // ── Manual reset — saves a log first, then clears ─────────────────────────
   const reset = async () => {
+    // Save a log of the current state before wiping
+    if (onAdd && Object.keys(checked).length > 0) {
+      const dateLabel = showDateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+      // Mark as logged so auto-log doesn't double-fire at 7am
+      await supabase.from('content').upsert(
+        { key: `checklist-logged-${showDate}`, value: new Date().toISOString(), updated_at: new Date().toISOString() },
+        { onConflict: 'key' }
+      )
+      await onAdd({
+        title: `Night Of Log — ${dateLabel} (manual reset)`,
+        content: buildLogContent(checked, dateLabel),
+        tag: 'log',
+        date: showDate,
+        pinned: false,
+      })
+    }
+
     setChecked({})
     ignoreRef.current = true
     await supabase.from('content').upsert(
@@ -168,24 +255,26 @@ export default function NightOf({ onAdd, session }) {
             Night Of
           </h2>
           <div style={{ fontSize: 11, color: colors.textFaint, fontFamily: fonts.mono }}>
-            {_d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {showDateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             &nbsp;·&nbsp;{loading ? '…' : `${doneItems} / ${totalItems}  ${pct}%`}
           </div>
         </div>
-        {confirmReset ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 10, color: colors.textFaint, fontFamily: fonts.mono }}>Reset for everyone?</span>
-            <button onClick={() => { reset(); setConfirmReset(false) }} style={{ background: 'rgba(224,96,96,0.1)', border: '1px solid rgba(224,96,96,0.3)', color: '#e06060', borderRadius: 6, padding: '5px 12px', fontSize: 10, fontFamily: fonts.mono }}>
-              Yes, reset
+        {canReset && (
+          confirmReset ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 10, color: colors.textFaint, fontFamily: fonts.mono }}>Reset for everyone?</span>
+              <button onClick={() => { reset(); setConfirmReset(false) }} style={{ background: 'rgba(224,96,96,0.1)', border: '1px solid rgba(224,96,96,0.3)', color: '#e06060', borderRadius: 6, padding: '5px 12px', fontSize: 10, fontFamily: fonts.mono }}>
+                Yes, reset
+              </button>
+              <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 6, padding: '5px 10px', fontSize: 10, fontFamily: fonts.mono }}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmReset(true)} title="Clear all checkboxes for everyone" style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 8, padding: '6px 14px', fontSize: 10, fontFamily: fonts.mono, letterSpacing: '1px' }}>
+              ↺ Reset All
             </button>
-            <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 6, padding: '5px 10px', fontSize: 10, fontFamily: fonts.mono }}>
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button onClick={() => setConfirmReset(true)} title="Clear all checkboxes for everyone" style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: colors.textFaint, borderRadius: 8, padding: '6px 14px', fontSize: 10, fontFamily: fonts.mono, letterSpacing: '1px' }}>
-            ↺ Reset All
-          </button>
+          )
         )}
       </div>
 
