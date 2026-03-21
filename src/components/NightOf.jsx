@@ -46,9 +46,13 @@ const CHECKLIST = {
 }
 
 export default function NightOf({ onAdd, session }) {
-  const today = new Date().toISOString().slice(0, 10)
-  const checklistKey = `checklist-${today}`
-  const notesKey     = `nightof-notes-${today}`
+  // Roll over at 7am — before 7am counts as the previous night's show
+  const _now = new Date()
+  const _d = new Date(_now)
+  if (_now.getHours() < 7) _d.setDate(_d.getDate() - 1)
+  const showDate = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`
+  const checklistKey = `checklist-${showDate}`
+  const notesKey     = `nightof-notes-${showDate}`
 
   const [checked, setChecked] = useState({})
   const [confirmReset, setConfirmReset] = useState(false)
@@ -83,7 +87,7 @@ export default function NightOf({ onAdd, session }) {
 
     // Realtime: sync across all users
     sub = supabase
-      .channel(`checklist-${today}`)
+      .channel(`checklist-${showDate}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'content',
         filter: `key=eq.${checklistKey}`,
@@ -95,7 +99,7 @@ export default function NightOf({ onAdd, session }) {
       .subscribe()
 
     return () => { supabase.removeChannel(sub) }
-  }, [today])
+  }, [showDate])
 
   // ── Write checked state to Supabase ───────────────────────────────────────
   const persistChecked = async (next) => {
@@ -136,10 +140,10 @@ export default function NightOf({ onAdd, session }) {
     setSaveErr(s => ({ ...s, [field]: null }))
     const isCrowd = field === 'crowd'
     const result = await onAdd({
-      title: `${isCrowd ? 'Crowd Read' : 'Tech Notes'} — ${today}`,
+      title: `${isCrowd ? 'Crowd Read' : 'Tech Notes'} — ${showDate}`,
       content: value,
       tag: isCrowd ? 'log' : 'sound',
-      date: today,
+      date: showDate,
       pinned: false,
     })
     setSaving(s => ({ ...s, [field]: false }))
@@ -164,7 +168,7 @@ export default function NightOf({ onAdd, session }) {
             Night Of
           </h2>
           <div style={{ fontSize: 11, color: colors.textFaint, fontFamily: fonts.mono }}>
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {_d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             &nbsp;·&nbsp;{loading ? '…' : `${doneItems} / ${totalItems}  ${pct}%`}
           </div>
         </div>
