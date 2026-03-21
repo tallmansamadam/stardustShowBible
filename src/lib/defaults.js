@@ -788,18 +788,114 @@ Mac Mini (Karafun) → Bluetooth receiver → Pioneer 2ch DJ controller → Behr
 ### Signal Chain (DJ)
 Pioneer controller (USB) → X32 Compact → house speakers
 
-### X32 Compact — Current Focus Areas
-- [ ] Dial in mic EQ for vocal clarity across wide range of untrained voices
-- [ ] Set HPF on all mic channels (~120Hz) to cut low-end rumble
-- [ ] Add gentle compression on vocal channels (2:1 ratio, slow attack)
-- [ ] Build a dedicated monitor bus for performers
+### X32 Compact — Setup Checklist
+- [ ] Build a dedicated monitor bus for performers (Bus 1 recommended)
 - [ ] Save scene once optimal settings found (label: "KARAOKE BASE")
 - [ ] Verify gain staging at each handoff to avoid noise floor buildup
 
-### EQ Notes
-- Vocal presence boost: ~3–5kHz
-- Cut muddiness: ~300–500Hz notch if needed
-- Watch for feedback: typically ~2kHz and ~8kHz in live rooms
+---
+
+## Mic EQ — Setup Guide
+
+This applies to every wireless mic channel in the KARAOKE BASE scene. Karaoke vocalists are untrained and unpredictable — the goal is to make every voice sit clearly in the mix and stay feedback-free, not to make anyone sound like a studio recording.
+
+**Start with gain staging before touching EQ.** Set the preamp gain (head amp) so that a loud singer peaks at around -18 to -12dBFS on the channel meter. Do this with EQ flat and faders at 0. Everything below is useless if gain is wrong.
+
+### HPF (High-Pass Filter)
+- **Engage: YES — always on, every mic channel**
+- Frequency: **100Hz**
+- Slope: 18 or 24 dB/oct
+- Why: vocals have almost nothing useful below 100Hz. Everything below is stage rumble, handling noise, and proximity effect buildup from singers who cup the mic. Cutting it costs nothing and cleans up the low end immediately.
+
+### Band 2 — Low Mid (mud reduction)
+- Type: parametric
+- Frequency: **250Hz**
+- Gain: **–2 to –4dB**
+- Q: 1.5
+- Why: the "mud" zone. Untrained singers often have a lot of buildup here, especially when they get close to the capsule. A modest cut here cleans up the low end without thinning the voice. If the voice already sounds thin, skip this or reduce the cut.
+
+### Band 3 — Mid (boxiness)
+- Type: parametric
+- Frequency: **600–800Hz**
+- Gain: **–1 to –3dB** (or leave flat)
+- Q: 1.5
+- Why: this is where "honky," nasal, or boxy quality lives. Not all voices need a cut here — start flat and only reach for it if a voice sounds hollow or like it's coming through a cardboard tube. It's easy to over-cut and make voices sound thin.
+
+### Band 4 — Upper Mid (presence — most important)
+- Type: parametric
+- Frequency: **3kHz**
+- Gain: **+2 to +3dB**
+- Q: 1.5
+- Why: this is where vocal intelligibility lives — consonants, diction, cut-through the backing track. A boost here is almost always right for karaoke. If a vocal sounds buried or muffled in the mix, this is the first place to add gain.
+
+### Band 5 — High Mid (definition)
+- Type: parametric
+- Frequency: **5–6kHz**
+- Gain: **+1 to +2dB**
+- Q: 2.0
+- Why: adds crispness and "air" without the harshness of going higher. Keep it modest — this range can get sibilant on some voices. If you're hearing excessive S sounds, cut here instead of boosting.
+
+### High Shelf (optional)
+- Frequency: **10kHz**
+- Gain: **+1 to +2dB**, or flat
+- Why: adds air and sparkle on good nights. Cut slightly if the singer is sibilant or if the room is ringing in the highs.
+
+### Feedback Notches (add only when you find a problem frequency)
+- Add a narrow parametric cut (Q: 4–6, gain: –8 to –12dB) at the exact frequency that's ringing
+- Common problem spots: **~2kHz** and **~8kHz** in live rooms
+- Do not pre-emptively add notches — they dull the sound. Find the frequency first by slowly sweeping a boosted band until it rings, then flip to a cut at that exact point.
+
+### The cupping problem
+Many untrained karaoke singers cup the mic (wrap their hand around the capsule). This makes the mic more directional, boosts low-mids dramatically, and nearly guarantees feedback because it changes the polar pattern. If a singer is cupping and feeding back:
+- Gently correct them: "hold it at the bottom of the handle, below the ball"
+- Expect you may need to temporarily reduce gain on that channel while they adjust
+
+---
+
+## Mic Compression — Setup Guide
+
+Compression on karaoke mics serves one job: make wildly different volume levels manageable without riding the fader constantly. A whisper followed by a belt is the norm, not the exception.
+
+### On the X32 — where to find it
+Channel → HOME → DYN (dynamics section). Type: COMP.
+
+### Threshold
+- Starting point: **–18dBFS**
+- Adjust so the gain reduction meter reads **3–6dB** when a confident singer delivers a normal-to-loud phrase
+- Quiet singers won't trigger it at all — that's fine. It's working on the peaks.
+- If you're seeing 10dB+ of reduction constantly, raise the threshold. Over-compression makes voices sound lifeless and pumping.
+
+### Ratio
+- **3:1**
+- Gentle enough to sound natural on quiet passages, firm enough to catch unexpected belters
+- Go to 4:1 if the room is loud and level control is a fight. Avoid going above 4:1 for karaoke — it starts sounding unnatural on soft voices.
+
+### Attack
+- **30–50ms**
+- Lets the initial consonant punch through before the compressor clamps down on the body of the note
+- Too short (< 10ms): vocals sound choked, dull, and "squashed" — you lose the initial snap of every word
+- Too long (> 100ms): the compressor misses the loud peaks entirely
+
+### Release
+- **80–120ms**
+- Fast enough for the compressor to recover between phrases, slow enough to avoid pumping
+- If you hear the level "breathe" or swell on held notes, shorten the release
+- If compression artifacts are audible on fast phrases, try lengthening it slightly
+
+### Knee
+- **Soft** (set Knee to 3–5 on the X32 scale)
+- Soft knee gradually ramps into compression as the signal approaches threshold — sounds more natural on unpredictable voices than a hard knee that snaps on suddenly
+
+### Makeup Gain
+- If you're consistently seeing 4–6dB of gain reduction, add **4–6dB makeup gain**
+- The goal: the compressed vocal should sit at the same average perceived level as if there were no compressor — you're evening out peaks, not turning the volume down
+
+### Detection Mode
+- Use **RMS** if the option is available (responds to average level — more musical for vocals)
+- PEAK reacts to individual transients, which can cause the compressor to pump on fast, percussive consonants
+
+### Signal chain reminder
+On the X32 the order is fixed: Preamp → HPF → Gate → Comp → EQ → Fader. EQ comes after compression in the channel strip, which is correct — you're shaping a dynamically controlled signal, not compressing an already-EQ'd one.
 
 ### Bluetooth Routing — Risk Assessment
 The Mac Mini → BT receiver link is the weakest point in the entire signal chain.
