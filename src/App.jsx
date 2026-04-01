@@ -116,6 +116,8 @@ export default function App() {
   if (!session) return <LoginPage />
 
   const currentSection = TABS[activeTab].section
+  const today = new Date().toISOString().slice(0, 10)
+  const staleCount = posts.filter(p => p.date && p.date < today && (p.status === 'draft' || p.status === 'idea')).length
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: fonts.body, color: colors.text, position: 'relative', overflow: 'hidden' }}>
@@ -194,7 +196,7 @@ export default function App() {
               key={i}
               onClick={() => setActiveTab(i)}
               style={{
-                background: 'none', border: 'none',
+                background: 'none', border: 'none', position: 'relative',
                 borderBottom: activeTab === i ? `2px solid ${colors.gold}` : '2px solid transparent',
                 color: activeTab === i ? colors.gold : colors.textMuted,
                 padding: '10px 14px', fontSize: 11,
@@ -205,6 +207,18 @@ export default function App() {
               }}
             >
               {tab.label.replace(/^\p{Emoji_Presentation}\s*/u, '')}
+              {i === 1 && staleCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: 6, right: 2,
+                  minWidth: 14, height: 14, borderRadius: 7,
+                  background: 'rgba(224,168,74,0.85)', color: '#09080f',
+                  fontSize: 8, fontFamily: fonts.mono, fontWeight: 700,
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 3px', lineHeight: 1,
+                }}>
+                  {staleCount}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -234,7 +248,8 @@ export default function App() {
                 key={i}
                 onClick={() => { setActiveTab(i); setMenuOpen(false) }}
                 style={{
-                  display: 'block', width: '100%', background: activeTab === i ? 'rgba(212,168,74,0.07)' : 'none',
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  width: '100%', background: activeTab === i ? 'rgba(212,168,74,0.07)' : 'none',
                   border: 'none', borderLeft: activeTab === i ? `2px solid ${colors.gold}` : '2px solid transparent',
                   color: activeTab === i ? colors.gold : colors.textMuted,
                   padding: '16px 26px', fontSize: 13, textAlign: 'left',
@@ -243,6 +258,17 @@ export default function App() {
                 }}
               >
                 {tab.label.replace(/^\p{Emoji_Presentation}\s*/u, '')}
+                {i === 1 && staleCount > 0 && (
+                  <span style={{
+                    minWidth: 18, height: 18, borderRadius: 9,
+                    background: 'rgba(224,168,74,0.85)', color: '#09080f',
+                    fontSize: 9, fontFamily: fonts.mono, fontWeight: 700,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 4px',
+                  }}>
+                    {staleCount}
+                  </span>
+                )}
               </button>
             ))}
           </div>
