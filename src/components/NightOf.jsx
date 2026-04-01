@@ -65,7 +65,52 @@ const buildLogContent = (checkedState, dateLabel) => {
   return lines.join('\n')
 }
 
-export default function NightOf({ onAdd, session, role }) {
+function PastNights({ notes }) {
+  const [expanded, setExpanded] = useState(null)
+  const logs = (notes || [])
+    .filter(n => n.tag === 'log')
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .slice(0, 20)
+
+  if (logs.length === 0) return null
+
+  return (
+    <div style={{ marginTop: 28 }}>
+      <div style={{ fontSize: 10, color: colors.textFaint, fontFamily: fonts.mono, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 12 }}>
+        Past Nights
+      </div>
+      <div style={{ display: 'grid', gap: 6 }}>
+        {logs.map(log => (
+          <div key={log.id} className="glass" style={{ borderRadius: 10, overflow: 'hidden' }}>
+            <button
+              onClick={() => setExpanded(expanded === log.id ? null : log.id)}
+              style={{
+                width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '11px 16px', background: 'none', border: 'none', cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <span style={{ fontSize: 13, color: colors.textMuted, fontFamily: fonts.body }}>{log.title}</span>
+              <span style={{ fontSize: 10, color: colors.textFaint, fontFamily: fonts.mono, marginLeft: 12, flexShrink: 0 }}>
+                {expanded === log.id ? '▲' : '▼'}
+              </span>
+            </button>
+            {expanded === log.id && (
+              <pre style={{
+                margin: 0, padding: '0 16px 14px', fontSize: 11, color: colors.textFaint,
+                fontFamily: fonts.mono, lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+              }}>
+                {log.content}
+              </pre>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function NightOf({ onAdd, session, role, notes }) {
   // Roll over at 7am — before 7am counts as the previous night's show
   const _now = new Date()
   const showDateObj = new Date(_now)
@@ -398,6 +443,8 @@ export default function NightOf({ onAdd, session, role }) {
           </div>
         ))}
       </div>
+
+      <PastNights notes={notes} />
     </div>
   )
 }
