@@ -1021,10 +1021,10 @@ The lighting follows the same arc as the music and hosting energy. Whoever is ru
 
 ### Staff Schedule
 
-**Frank** — Karaoke Host / Sound
+**Sam Baker** — Karaoke Host / Sound
 On duty: Friday & Saturday · 5pm – 1am
-Phone: [add]
-Email: [add]
+Phone: +1 (312) 543-2722
+Email: GlitchGatsby@suitandtiesound.com
 
 **Eddie Maldonado (Edlo)** — Karaoke Host / DJ
 On duty: Friday midnight–1am → 4am close · Saturday midnight–1am → 5am close
